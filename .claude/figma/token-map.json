@@ -1,0 +1,22 @@
+{
+  "$comment": "TEMPLATE — fill per app before /figma-implement. Figma variable/style name → constitution token path. Keys on the right are FIXED by §A7 (palette names are free, append-only).",
+  "_template": true,
+  "colors": {
+    "<figma/variable/name>": "palette.<name>"
+  },
+  "semantic": {
+    "<figma/semantic/background>": "colors.background"
+  },
+  "spacing": {
+    "<figma/spacing/16>": "spacing.lg"
+  },
+  "typography": {
+    "<Figma Text Style/Body>": "typography.body"
+  },
+  "radius": {
+    "<figma/radius/8>": "radius.md"
+  },
+  "shadows": {
+    "<Figma Effect/Elevation 2>": "shadows.md"
+  }
+}

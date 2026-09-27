@@ -1,0 +1,10 @@
+{
+  "$comment": "TEMPLATE — fill per app. Figma frame → screens/<area>/<screen>/ + navigator placement (unauthenticated | authenticated | tabs | modal | <feature>).",
+  "_template": true,
+  "screens": {
+    "<Figma Frame Name>": {
+      "path": "screens/<area>/<screen-name>",
+      "navigator": "authenticated"
+    }
+  }
+}

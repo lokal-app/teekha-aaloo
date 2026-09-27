@@ -1,0 +1,15 @@
+{
+  "common": {
+    "errorBoundary": {
+      "title": "Something went wrong",
+      "message": "An unexpected error occurred. Please try again.",
+      "retry": "Try again"
+    }
+  },
+  "navigation": {
+    "placeholder": {
+      "title": "Teekha Aaloo",
+      "message": "The app skeleton is running. Register the first real screen to replace this placeholder."
+    }
+  }
+}

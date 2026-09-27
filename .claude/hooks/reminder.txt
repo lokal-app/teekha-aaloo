@@ -1,0 +1,1 @@
+RULES: utils=pure | lib=infra-only | features=4-of-4 | else spine. No inline styles — createStyles(theme)+useStyles. Tokens from theme only. react-query-kit + getKey(). Zustand selectors only. Named exports. t() strings. Scaffold via skills.

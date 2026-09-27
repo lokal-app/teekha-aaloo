@@ -1,0 +1,36 @@
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "base": {
+      "node": "24.11.0",
+      "pnpm": "10.15.1"
+    },
+    "development": {
+      "extends": "base",
+      "developmentClient": true,
+      "distribution": "internal",
+      "channel": "development",
+      "env": { "APP_ENV": "development" }
+    },
+    "staging": {
+      "extends": "base",
+      "distribution": "internal",
+      "channel": "staging",
+      "autoIncrement": true,
+      "env": { "APP_ENV": "staging" },
+      "android": { "buildType": "apk" }
+    },
+    "production": {
+      "extends": "base",
+      "channel": "production",
+      "autoIncrement": true,
+      "env": { "APP_ENV": "production" }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "types": [
+      "node"
+    ],
+    "allowImportingTsExtensions": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@env": [
+        "./src/lib/env.ts"
+      ],
+      "@assets/*": [
+        "./assets/*"
+      ],
+      "@modules/*": [
+        "./modules/*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "android",
+    "ios",
+    "eslint-plugin-design-system"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "$comment": "TEMPLATE — fill per app. Figma component (set) name → components/ui primitive + variant/size mapping.",
+  "_template": true,
+  "components": {
+    "<Figma Component/Button>": {
+      "primitive": "Button",
+      "variants": { "<Figma variant value>": "primary" },
+      "sizes": { "<Figma size value>": "md" }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+packages:
+  - eslint-plugin-design-system
+
+onlyBuiltDependencies:
+  - unrs-resolver
