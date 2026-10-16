@@ -1,11 +1,10 @@
 ---
 description: Opt this app into Kagaz's own token lint (token-police). Use ONLY when the developer
   explicitly asks to enable token-police; never on your own initiative.
-argument-hint: '[registry|git]'
-allowed-tools: 'Read Write Edit Grep Glob Bash'
+argument-hint: "[registry|git]"
+allowed-tools: "Read Write Edit Grep Glob Bash"
 disable-model-invocation: true
 ---
-
 1. Read the installed @lokal-app/kagaz-components version (KAGAZ_VERSION).
 2. Find the install source: `@lokal-app/kagaz-token-police@<KAGAZ_VERSION>` on GitHub Packages
    (`npm view`); if not published, the git pin to the commit of tag

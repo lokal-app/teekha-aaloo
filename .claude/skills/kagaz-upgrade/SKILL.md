@@ -2,10 +2,9 @@
 description: Upgrade the Kagaz design system (components + tokens + this app's brand package)
   to a new version in its own PR — refresh the generated maps, migrate breaking props, retire
   KAGAZ-GAP compositions. The ONLY sanctioned way to change a Kagaz version.
-argument-hint: '<target-version e.g. 1.1.0> [brand-version] [--bootstrap --from <KAGAZ_BASELINE>]'
-allowed-tools: 'Read Write Edit Grep Glob Bash Agent'
+argument-hint: "<target-version e.g. 1.1.0> [brand-version] [--bootstrap --from <KAGAZ_BASELINE>]"
+allowed-tools: "Read Write Edit Grep Glob Bash Agent"
 ---
-
 1. Preflight: clean working tree on a dedicated branch (kagaz-upgrade-<version>); record the
    current versions from package.json; read the Kagaz CHANGELOGs between current and target
    (github.com/lokal-app/kagaz packages/{components,tokens,brands/<brand>}/CHANGELOG.md via
@@ -27,8 +26,8 @@ allowed-tools: 'Read Write Edit Grep Glob Bash Agent'
    (exact pins; kagaz-tokens follows components; the brand version must peer-accept them).
    Wait for confirmation.
 3. Regenerate: `node scripts/kagaz-exports.mjs` (kagaz-exports.json, shared + brand); refresh
-   .claude/figma/component-map.json from the Kagaz repo's packages/components/src/_/figma_.json
-   and packages/brands/<brand>/src/components/_/figma_.json at the release tag (set
+   .claude/figma/component-map.json from the Kagaz repo's packages/components/src/*/figma*.json
+   and packages/brands/<brand>/src/components/*/figma*.json at the release tag (set
    kagazVersion + brandVersion); re-run lint (token-police too, if opted in); update the §A7.6 inventory and the §A7.1 token table
    in docs/ARCHITECTURE.md from the installed types; update
    eslint-plugin-design-system/kagaz-i18n-props.json for any new English-default prop.

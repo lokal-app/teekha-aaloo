@@ -5,7 +5,6 @@ description: Stage 1 of /figma-implement — read the app's Figma frames via MCP
   agent with Figma MCP access.
 tools: Read, Write, Grep, Glob, mcp__figma__*
 ---
-
 Extract from the given Figma URL via the Figma MCP tools, for the target frames only:
 (1) every component INSTANCE: its main component's set name + key, its variant/component
 property values, its text overrides, and its node id; (2) every variable binding and text

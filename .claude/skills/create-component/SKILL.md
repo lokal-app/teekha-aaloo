@@ -2,12 +2,11 @@
 description: Create an app component on the Kagaz design system at the correct ladder level
   (screen-local, area, common, icon) — after proving Kagaz doesn't already ship it. Use for
   ANY new component.
-argument-hint: '<ComponentName> [<area>|common|icon|screen:<area>/<screen>]'
-allowed-tools: 'Read Write Edit Grep Glob Bash'
+argument-hint: "<ComponentName> [<area>|common|icon|screen:<area>/<screen>]"
+allowed-tools: "Read Write Edit Grep Glob Bash"
 context: fork
 agent: ui-implementer
 ---
-
 0. KAGAZ STEP 0 (mandatory, reported): search docs/ARCHITECTURE.md §A7.6 and the Kagaz exports
    (eslint-plugin-design-system/kagaz-exports.json — shared + this brand's /components and
    /icons). If Kagaz ships it → STOP and answer "use <KagazExport> from @/components/ui with

@@ -5,7 +5,6 @@ description: End-to-end feature implementation from a PRD (+ optional Figma URL 
 argument-hint: "<path-to-PRD-or-inline-brief> [figma-url] [postman-collection]"
 allowed-tools: "Read Write Edit Grep Glob Bash Agent"
 ---
-
 PHASE 1 — UNDERSTAND. Read the PRD fully. Extract: user flows, screens, data entities,
 API needs, client state, edge cases, analytics events. List ambiguities and ASK the user
 now — never guess business logic.
@@ -18,13 +17,13 @@ Kagaz components per screen, compositions to build, Kagaz gaps (filed / deferred
 KAGAZ-GAP compositions), analytics events, open questions. PAUSE for user approval. Do not
 write src/ code before approval.
 PHASE 4 — BUILD, in this order with gates between each:
-a. API: /api-from-collection if a collection was given, else /add-api-resource per entity.
-b. State: /add-store per client-state concern.
-c. Design: if figma-url given → /figma-implement scoped to this feature's frames (stages
-3–5; stages 1–2 already ran); else /create-component (Kagaz step 0 first) +
-/create-screen per the plan (ui-implementer/screen-builder).
-d. Flows: flow-wirer for navigation + analytics events via lib/analytics.
-Gate after each sub-step: pnpm lint + pnpm type-check.
+  a. API: /api-from-collection if a collection was given, else /add-api-resource per entity.
+  b. State: /add-store per client-state concern.
+  c. Design: if figma-url given → /figma-implement scoped to this feature's frames (stages
+     3–5; stages 1–2 already ran); else /create-component (Kagaz step 0 first) +
+     /create-screen per the plan (ui-implementer/screen-builder).
+  d. Flows: flow-wirer for navigation + analytics events via lib/analytics.
+  Gate after each sub-step: pnpm lint + pnpm type-check.
 PHASE 5 — VERIFY. pnpm check-all, then pr-reviewer on the full diff. Fix all BLOCKER/MAJOR
 findings and re-run until APPROVE. Output: plan link, file inventory, hook/store/screen/route
 summary, Kagaz usage + gaps, analytics events, anything deferred.

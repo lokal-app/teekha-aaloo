@@ -1,5 +1,4 @@
 # components/ui/ — the Kagaz gateway (the ONLY place Kagaz components enter the app)
-
 Shape (locked): kagaz.ts (shared re-exports) • brand.ts (this brand's /components /icons
 /geometry; `export {};` if none) • navigation.ts (useTabBarOptions, tabItem) • index.ts
 (export * from kagaz + navigation, + brand once it has a re-export) • adapters/<Name>.tsx (ONLY via /kagaz-upgrade) • CLAUDE.md.

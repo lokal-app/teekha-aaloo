@@ -2,17 +2,16 @@
 description: The gated Figma-to-code pipeline on Kagaz — extract → resolve against Kagaz →
   compositions → screens → wire flows → verify. Use whenever implementing designs from a
   Figma URL.
-argument-hint: '<figma-url> [frames/pages to implement]'
-allowed-tools: 'Read Write Edit Grep Glob Bash Agent'
+argument-hint: "<figma-url> [frames/pages to implement]"
+allowed-tools: "Read Write Edit Grep Glob Bash Agent"
 ---
-
 Run stages IN ORDER. Every gate is a command exit code or an explicit zero-count — a failed
-gate HALTS the pipeline; report and stop. Never skip a gate, never proceed on red. 0. Preflight: .claude/figma/component-map.json present (ships pre-filled for the installed Kagaz
-version — its `kagazVersion` must equal node_modules/@lokal-app/kagaz-components version,
-else run /kagaz-upgrade's map refresh first; its `brandComponents` holds this app's brand);
-screen-map.json filled for these frames;
-Figma MCP reachable; pnpm kagaz:check green. Missing → prompt the user; stop.
-
+gate HALTS the pipeline; report and stop. Never skip a gate, never proceed on red.
+0. Preflight: .claude/figma/component-map.json present (ships pre-filled for the installed Kagaz
+   version — its `kagazVersion` must equal node_modules/@lokal-app/kagaz-components version,
+   else run /kagaz-upgrade's map refresh first; its `brandComponents` holds this app's brand);
+   screen-map.json filled for these frames;
+   Figma MCP reachable; pnpm kagaz:check green. Missing → prompt the user; stop.
 1. EXTRACT — spawn figma-extractor with the URL. Gate: design-package.json validates against
    the schema (node .claude/figma/validate.mjs).
 2. RESOLVE AGAINST KAGAZ — spawn kagaz-resolver. Gate: zero GAP(design-bug), zero BLOCKERS

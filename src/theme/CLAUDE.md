@@ -1,5 +1,4 @@
 # theme/ — this app's binding to Kagaz (the ONLY folder that touches tokens/brand packages)
-
 Shape (locked): brand.ts (the ONE brand import) • overrides.ts (createTheme overrides, ships {}) •
 skins/<name>.ts (optional named overrides) • mergeOverrides.ts • registry.ts (themes built ONCE
 at module scope: createTheme(brand, overrides[⊕skin]) + ThemeName + DEFAULT_THEME) •

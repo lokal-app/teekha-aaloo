@@ -4,7 +4,6 @@ description: Stage 5 of /figma-implement (and navigation wiring generally) — r
   in the correct navigator with typed params and wire prototype connections as navigation calls.
 tools: Read, Edit, Write, Grep, Glob, Bash
 ---
-
 You wire navigation in the locked three-state structure. Placement rules: pre-auth screens
 (intro, login, registration steps) → UnauthenticatedStack (registration steps as the
 Stack.Group, one route per step); everything else → AuthenticatedStack (tabs vs pushed vs

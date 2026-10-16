@@ -1,5 +1,4 @@
 # navigation/ — locked three-state root, Kagaz chrome
-
 RootNavigator renders NavigationContainer (navigationRef, linking, theme =
 navigationThemes[themeName][mode] from @/theme) and switches ONLY on authStore.status:
 restoring | unauthenticated | authenticated. Intro slider = initialRouteName of

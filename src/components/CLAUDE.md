@@ -1,5 +1,4 @@
 # components/ — app compositions of Kagaz (presentational only)
-
 Kagaz is the design system. ui/ = the Kagaz GATEWAY (own CLAUDE.md): pass-through re-exports,
 the only importer of @lokal-app/kagaz-*; everything here imports Kagaz from @/components/ui.
 shell/ = the CLOSED six app-shell pieces (own CLAUDE.md). icons/ = app icons Kagaz lacks (own

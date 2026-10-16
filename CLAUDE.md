@@ -6,7 +6,6 @@ live in scoped CLAUDE.md files (loaded automatically when you touch those folder
 Full text: docs/ARCHITECTURE.md (§A7 = the design-system contract).
 
 ## Design system = Kagaz (read before ANY UI work)
-
 - UI comes from @lokal-app/kagaz-components + this app's ONE brand (src/theme/brand.ts).
   Kagaz owns every token, component, icon, font and the tab-bar/navigation look.
 - GATEWAY: Kagaz enters the app in exactly two folders — src/components/ui/ (components,
@@ -34,18 +33,16 @@ Full text: docs/ARCHITECTURE.md (§A7 = the design-system contract).
   (@lokal-app/kagaz-token-police) is OPT-IN: only when the developer asks, via /enable-token-police.
 
 ## Where new code goes
-
-- Pure helper (no React, no side effects) → src/utils/
-- Infrastructure / integration (no business) → src/lib/
+- Pure helper (no React, no side effects)        → src/utils/
+- Infrastructure / integration (no business)     → src/lib/
 - Isolated feature (4-of-4: own domain, terminal navigator, no spine state,
-  deletable in one PR) → src/features/<name>/
+  deletable in one PR)                            → src/features/<name>/
 - Otherwise (the common case) → spine: api/<resource>/ • components/<area|common|shell|icons>/ •
   screens/<area>/<screen>/ • stores/<area>/ • hooks/use<Name>.ts (hooks/ is the ONE flat folder)
 - New top-level src/ folder, new shell primitive, new dependency, Kagaz version change → STOP, ADR
   (Kagaz upgrades only via /kagaz-upgrade).
 
 ## Dependency direction (one-way)
-
 theme → Kagaz only • components/ui → Kagaz only (the gateway) • utils → nothing • lib → utils
 only (never Kagaz) • hooks → lib+utils+theme • components/shell → ui+theme+utils •
 components/* → ui+shell+icons+theme+utils+hooks (NEVER api/stores/screens, NEVER @lokal-app/*) •
@@ -54,7 +51,6 @@ features → leaf (never other features, never spine stores/screens). Components
 read stores — data arrives via props.
 
 ## Canonical shapes (scaffold with the skills, never by hand)
-
 - Screen: screens/<area>/<screen>/{<Name>Screen.tsx, use<Name>Screen.ts, styles.ts,
   index.ts, useTrack.ts?, constants.ts?, components/?, variants/?}. Screen file = render
   only, exactly ONE component, built from Kagaz components + shell; the data hook owns
@@ -75,7 +71,6 @@ read stores — data arrives via props.
 - Feature: features/<name>/{api,components,screens,stores?,hooks?,navigator.tsx,types.ts,index.ts}.
 
 ## Styling (absolute)
-
 Three channels, no fourth: (1) Kagaz component props (variant/fill/size/state…) are the ONLY
 way to change a Kagaz component's look; (2) Kagaz primitives with token-named props —
 <VStack gap={16} padding={16} background="surface.page.default">, <Text variant="label1P"
@@ -91,26 +86,22 @@ Brand-optional tokens (accent02-04, highlighter, effects) and nullable component
 theme/overrides.ts + theme/skins/* with a Figma citation. Check light AND dark.
 
 ## Naming
-
 Folders kebab-case • components PascalCase (screens end in Screen; never a Kagaz export name) •
 icons <Name>Icon • other files camelCase • named exports only • api hooks
 use<Get|List|Create|Update|Delete><Noun> • stores use<Name>Store • translation keys
 area.scope.key • analytics events area_object_action.
 
 ## Barrels — boundary only
-
 index.ts allowed ONLY at: features/<x>/, lib/<slot>/, theme/, components/ui/ (the Kagaz
 gateway), components/shell/, components/icons/, screens/<area>/<screen>/, stores/<area>/. Never
 at layer roots, never cascading, never partial; only components/ui re-exports Kagaz components.
 
 ## Always
-
 t() for every user-facing string INCLUDING Kagaz label/accessibility props (never rely on
 Kagaz's English defaults) • lib/logger not console • FlashList not FlatList • expo-image not
 Image • dayjs • zod • no any/ts-ignore/non-null on optional tokens.
 
 ## Workflow
-
 Scaffold via skills: /create-screen /create-component /add-api-resource /add-store
 /create-feature /add-adapter /api-from-collection /figma-implement /implement-feature
 /add-skin /kagaz-upgrade (+ /enable-token-police, only when the developer asks). Delegate UI work to ui-implementer, Figma→Kagaz mapping to

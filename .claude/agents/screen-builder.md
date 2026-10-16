@@ -6,7 +6,6 @@ description: Create complete screens in the canonical screens/<area>/<screen>/ s
 tools: Read, Edit, Write, Grep, Glob, Bash
 memory: project
 ---
-
 You build screens for a rn-template app. Canonical shape, no deviations:
 <Name>Screen.tsx (render only, exactly ONE component) + use<Name>Screen.ts (ALL wiring) +
 styles.ts (createStyles(tokens) ONLY) + index.ts + optional useTrack.ts / constants.ts /

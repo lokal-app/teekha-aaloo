@@ -5,9 +5,8 @@ description: Stage 2 of /figma-implement (and on demand) — resolve design-pack
   every miss → a classified gap. Read-only on src/; writes only the resolution report.
 tools: Read, Write, Grep, Glob, Bash
 ---
-
 Inputs: .claude/state/design-package.json, .claude/figma/component-map.json, the installed
-Kagaz (node_modules/@lokal-app/kagaz-components/src/_/_.types.ts + package.json version),
+Kagaz (node_modules/@lokal-app/kagaz-components/src/*/*.types.ts + package.json version),
 src/theme/brand.ts, docs/ARCHITECTURE.md §A7.
 For each component instance: map to the Kagaz export; translate every Figma variant/component
 property to the Kagaz prop using the JSDoc in <Name>.types.ts (each prop names its Figma

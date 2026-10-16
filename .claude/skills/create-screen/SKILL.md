@@ -2,10 +2,9 @@
 description: Scaffold a screen in the canonical screens/<area>/<screen>/ shape, built from
   Kagaz components + the shell, and register its route. Use whenever a new screen is needed —
   never create screen files by hand.
-argument-hint: '<area> <screen-name> [navigator: unauthenticated|authenticated|tabs|<feature>]'
-allowed-tools: 'Read Write Edit Grep Glob Bash'
+argument-hint: "<area> <screen-name> [navigator: unauthenticated|authenticated|tabs|<feature>]"
+allowed-tools: "Read Write Edit Grep Glob Bash"
 ---
-
 1. Resolve area (kebab-case) and ScreenName (PascalCase). Path: src/screens/<area>/<screen-name>/.
    If the folder exists, stop and report.
 2. Kagaz step 0: list the screen's UI elements and the Kagaz export for each — shared, then the

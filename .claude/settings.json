@@ -3,16 +3,10 @@
   "plansDirectory": "docs/plans",
   "permissions": {
     "allow": [
-      "Bash(pnpm lint:*)",
-      "Bash(pnpm lint)",
-      "Bash(pnpm type-check)",
-      "Bash(pnpm check-all)",
-      "Bash(pnpm kagaz:check)",
-      "Bash(pnpm test:*)",
-      "Bash(node scripts/kagaz-exports.mjs)",
-      "Bash(git status)",
-      "Bash(git diff:*)",
-      "Bash(git log:*)"
+      "Bash(pnpm lint:*)", "Bash(pnpm lint)", "Bash(pnpm type-check)",
+      "Bash(pnpm check-all)", "Bash(pnpm kagaz:check)", "Bash(pnpm test:*)",
+      "Bash(node scripts/kagaz-exports.mjs)", "Bash(git status)",
+      "Bash(git diff:*)", "Bash(git log:*)"
     ],
     "deny": [
       "Read(./.env*)",
@@ -24,37 +18,21 @@
   },
   "hooks": {
     "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "jq -n --rawfile r .claude/hooks/reminder.txt '{hookSpecificOutput: {hookEventName: \"UserPromptSubmit\", additionalContext: $r}}'"
-          }
-        ]
-      }
+      { "hooks": [ { "type": "command",
+          "command": "jq -n --rawfile r .claude/hooks/reminder.txt '{hookSpecificOutput: {hookEventName: \"UserPromptSubmit\", additionalContext: $r}}'" } ] }
     ],
     "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [{ "type": "command", "command": "bash .claude/hooks/guard-bash.sh" }]
-      },
-      {
-        "matcher": "Edit|Write|MultiEdit",
-        "hooks": [{ "type": "command", "command": "bash .claude/hooks/guard-edit.sh" }]
-      }
+      { "matcher": "Bash",
+        "hooks": [ { "type": "command", "command": "bash .claude/hooks/guard-bash.sh" } ] },
+      { "matcher": "Edit|Write|MultiEdit",
+        "hooks": [ { "type": "command", "command": "bash .claude/hooks/guard-edit.sh" } ] }
     ],
     "PostToolUse": [
-      {
-        "matcher": "Edit|Write|MultiEdit",
-        "hooks": [{ "type": "command", "command": "bash .claude/hooks/lint-changed.sh" }]
-      }
+      { "matcher": "Edit|Write|MultiEdit",
+        "hooks": [ { "type": "command", "command": "bash .claude/hooks/lint-changed.sh" } ] }
     ],
     "Stop": [
-      {
-        "hooks": [
-          { "type": "command", "command": "bash .claude/hooks/stop-type-check.sh", "timeout": 180 }
-        ]
-      }
+      { "hooks": [ { "type": "command", "command": "bash .claude/hooks/stop-type-check.sh", "timeout": 180 } ] }
     ]
   }
 }

@@ -1,10 +1,8 @@
 ---
 paths:
-  - 'src/**/*.tsx'
+  - "src/**/*.tsx"
 ---
-
 # Styling & design-system rules (absolute, every component and screen)
-
 - KAGAZ FIRST. Before writing any JSX element that looks like a control, input, chip, tag, avatar,
   badge, snackbar, tooltip, divider, tab, toggle, pointer or icon: it exists in
   @lokal-app/kagaz-components — or, for brand-only pieces (e.g. Gaming PlayCard/ProgressBar), in

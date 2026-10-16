@@ -1,5 +1,4 @@
 # providers/ — the single composition root (providers/index.tsx only)
-
 Fixed order, outermost first: GestureHandlerRootView → SafeAreaProvider → KeyboardProvider →
 QueryClientProvider → Kagaz ThemeProvider → BottomSheetModalProvider → children +
 <FlashMessage MessageComponent={ToastMessage} />. ThemeProvider: theme={themes[themeName] ??

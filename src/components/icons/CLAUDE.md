@@ -1,5 +1,4 @@
 # components/icons/ — app icons Kagaz doesn't ship
-
 Check first: Kagaz icons (@lokal-app/kagaz-components) and the brand's icons
 (@lokal-app/kagaz-brand-<brand>/icons, e.g. CoinIcon). Only if neither has it: <Name>Icon.tsx here, generated
 from the Figma Phosphor component (react-native-svg, viewBox from Figma, single fill={color}),

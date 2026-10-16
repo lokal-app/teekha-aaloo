@@ -1,5 +1,4 @@
 # screens/ — two-level: screens/<area>/<screen>/
-
 Files: <Name>Screen.tsx (render ONLY, exactly ONE component — others go to ./components/;
 no queries, stores, navigation, or analytics), use<Name>Screen.ts (ALL wiring; typed
 useNavigation inside — screens never take a navigation prop; returns one object incl.
