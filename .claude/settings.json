@@ -4,11 +4,14 @@
   "permissions": {
     "allow": [
       "Bash(pnpm lint:*)", "Bash(pnpm lint)", "Bash(pnpm type-check)",
-      "Bash(pnpm check-all)", "Bash(pnpm test:*)", "Bash(git status)",
+      "Bash(pnpm check-all)", "Bash(pnpm kagaz:check)", "Bash(pnpm test:*)",
+      "Bash(node scripts/kagaz-exports.mjs)", "Bash(git status)",
       "Bash(git diff:*)", "Bash(git log:*)"
     ],
     "deny": [
       "Read(./.env*)",
+      "Edit(./node_modules/**)",
+      "Write(./node_modules/**)",
       "Bash(git push --force:*)",
       "Bash(rm -rf:*)"
     ]
@@ -20,10 +23,12 @@
     ],
     "PreToolUse": [
       { "matcher": "Bash",
-        "hooks": [ { "type": "command", "command": "bash .claude/hooks/guard-bash.sh" } ] }
+        "hooks": [ { "type": "command", "command": "bash .claude/hooks/guard-bash.sh" } ] },
+      { "matcher": "Edit|Write|MultiEdit",
+        "hooks": [ { "type": "command", "command": "bash .claude/hooks/guard-edit.sh" } ] }
     ],
     "PostToolUse": [
-      { "matcher": "Edit|Write",
+      { "matcher": "Edit|Write|MultiEdit",
         "hooks": [ { "type": "command", "command": "bash .claude/hooks/lint-changed.sh" } ] }
     ],
     "Stop": [

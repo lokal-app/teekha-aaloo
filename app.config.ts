@@ -27,7 +27,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     predictiveBackGestureEnabled: false,
   },
-  plugins: ['expo-dev-client', 'expo-secure-store', 'expo-image'],
+  plugins: ['expo-dev-client', 'expo-secure-store', 'expo-image', '@lokal-app/kagaz-brand-gaming'],
   extra: {
     ...ClientEnv,
     ...(BuildTimeEnv.EAS_PROJECT_ID ? { eas: { projectId: BuildTimeEnv.EAS_PROJECT_ID } } : {}),

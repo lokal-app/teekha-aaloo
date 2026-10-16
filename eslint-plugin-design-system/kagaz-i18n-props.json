@@ -1,0 +1,33 @@
+{
+  "$comment": "Kagaz props that render English by default (§A7.6). `when`: only required if that prop is set. Refreshed by /kagaz-upgrade (bootstrap Phase 4b). Kagaz 1.0.0-next.2 + kagaz-brand-gaming 1.0.0-next.1.",
+  "kagazVersion": "1.0.0-next.2",
+  "components": {
+    "TextInput": [
+      { "prop": "clearAccessibilityLabel", "when": "clearable", "default": "'Clear text'" }
+    ],
+    "DropdownInput": [
+      { "prop": "clearAccessibilityLabel", "when": "clearable", "default": "'Clear text'" },
+      { "prop": "prefixAccessibilityLabel", "when": "onPrefixPress", "default": "'Change prefix'" }
+    ],
+    "SearchInput": [
+      { "prop": "clearAccessibilityLabel", "when": "showClearIcon", "default": "'Clear search'" }
+    ],
+    "SystemSnackbar": [{ "prop": "dismissLabel", "when": "onDismiss", "default": "'Dismiss'" }],
+    "Tooltip": [{ "prop": "closeAccessibilityLabel", "when": "onClose", "default": "'Close'" }],
+    "TimerChip": [{ "prop": "addCoinsLabel", "default": "'Add Coins'" }],
+    "CoinChip": [{ "prop": "accessibilityLabel", "default": "'<value> coins'" }],
+    "CarouselPointers": [{ "prop": "accessibilityLabel", "default": "'Item N of M'" }],
+    "OtpInput": [{ "prop": "accessibilityLabel", "default": "'One-time code' (when no label)" }],
+    "Avatar": [{ "prop": "statusLabels", "when": "status", "default": "English status words" }],
+    "AvatarStack": [{ "prop": "othersLabel", "default": "'and N others'" }],
+    "Badge": [{ "prop": "accessibilityLabel", "default": "the bare number" }],
+    "BottomNavItem": [
+      { "prop": "badgeAccessibilityLabel", "when": "badgeCount", "default": "'3 new'" }
+    ],
+    "LanguageSelector": [{ "prop": "label", "default": "English language name" }],
+    "PlayCard": [
+      { "prop": "accessibilityLabel", "default": "'Play {title}'" },
+      { "prop": "lockedLabel", "default": "'More games coming soon'" }
+    ]
+  }
+}

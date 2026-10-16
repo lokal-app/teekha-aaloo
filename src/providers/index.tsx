@@ -9,43 +9,57 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { ErrorState, Screen, ToastMessage } from '@/components/ui';
+import { ErrorState, Screen, ToastMessage } from '@/components/shell';
 import { queryClient } from '@/lib/api-client';
 import { recordError } from '@/lib/crash';
 import { logger } from '@/lib/logger';
 import { useSettingsStore } from '@/stores/settings';
-import { type Theme, ThemeProvider, useStyles } from '@/theme';
+import { DEFAULT_THEME, type ThemeName, ThemeProvider, themes } from '@/theme';
 
 type Props = { children: ReactNode };
 
-/** The single composition root (§A11: no provider wrappers anywhere else). */
+/**
+ * The single composition root (§A13 order, §A11: no provider wrappers anywhere else). The Kagaz
+ * ThemeProvider sits inside the native/infra providers and wraps everything that renders Kagaz.
+ */
 export function Providers({ children }: Props) {
-  const themeName = useSettingsStore((s) => s.themeName);
-  const colorScheme = useSettingsStore((s) => s.colorScheme);
   return (
-    <ThemeProvider themeName={themeName} colorScheme={colorScheme}>
-      <AppShell>{children}</AppShell>
-    </ThemeProvider>
-  );
-}
-
-function AppShell({ children }: Props) {
-  const styles = useStyles(createStyles);
-  return (
-    <GestureHandlerRootView style={styles.root}>
+    <GestureHandlerRootView style={StyleSheet.absoluteFill}>
       <SafeAreaProvider>
         <KeyboardProvider>
           <QueryClientProvider client={queryClient}>
-            <BottomSheetModalProvider>
-              <ErrorBoundary FallbackComponent={RootErrorFallback} onError={handleRootError}>
-                {children}
-              </ErrorBoundary>
-              <FlashMessage position="top" MessageComponent={ToastMessage} />
-            </BottomSheetModalProvider>
+            <KagazTheme>
+              <BottomSheetModalProvider>
+                <ErrorBoundary FallbackComponent={RootErrorFallback} onError={handleRootError}>
+                  {children}
+                </ErrorBoundary>
+                <FlashMessage position="top" MessageComponent={ToastMessage} />
+              </BottomSheetModalProvider>
+            </KagazTheme>
           </QueryClientProvider>
         </KeyboardProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
+  );
+}
+
+function isThemeName(name: string): name is ThemeName {
+  return Object.prototype.hasOwnProperty.call(themes, name);
+}
+
+/** settings.colorScheme → Kagaz ThemeProvider: brand = brand default mode, system = follow device. */
+function KagazTheme({ children }: Props) {
+  const themeName = useSettingsStore((s) => s.themeName);
+  const colorScheme = useSettingsStore((s) => s.colorScheme);
+  const theme = themes[isThemeName(themeName) ? themeName : DEFAULT_THEME];
+  return (
+    <ThemeProvider
+      theme={theme}
+      followSystem={colorScheme === 'system'}
+      mode={colorScheme === 'light' || colorScheme === 'dark' ? colorScheme : undefined}
+    >
+      {children}
+    </ThemeProvider>
   );
 }
 
@@ -67,8 +81,3 @@ function handleRootError(error: unknown) {
   logger.error('Unhandled render error', error);
   recordError(error, { boundary: 'root' });
 }
-
-const createStyles = (theme: Theme) =>
-  StyleSheet.create({
-    root: { flex: 1, backgroundColor: theme.colors.background },
-  });

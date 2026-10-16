@@ -1,19 +1,8 @@
-// The ONE public theme surface. tokens/ is theme-internal and deliberately not re-exported.
-export { toNavigationTheme } from './navigationTheme';
-export { ThemeProvider, useTheme } from './ThemeProvider';
-export { createTheme } from './themes/createTheme';
-export { DEFAULT_THEME, isThemeName, type ThemeName, themes } from './themes/registry';
-export type {
-  ColorScheme,
-  ColorSchemePreference,
-  DeepPartial,
-  RadiusKey,
-  SemanticColorKey,
-  SemanticColors,
-  ShadowKey,
-  SpacingKey,
-  Theme,
-  ThemeSpec,
-  TypographyVariant,
-} from './types';
+// The ONE public theme surface (§A7.2). Kagaz components are NOT re-exported here — they come
+// from the component gateway @/components/ui (§A7.8).
+export { brand } from './brand';
+export { navigationThemes } from './navigationTheme';
+export { DEFAULT_THEME, type ThemeName, themes } from './registry';
 export { useStyles } from './useStyles';
+export type { Mode, KagazTokens as Tokens } from '@lokal-app/kagaz-components';
+export { ThemeProvider, useTheme, useTokens } from '@lokal-app/kagaz-components';

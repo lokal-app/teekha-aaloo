@@ -35,7 +35,8 @@ configureApiAuth({ onSessionExpired: () => useAuthStore.getState().signOut() });
 // 5. React Query ↔ React Native: focus = AppState, online = expo-network.
 setupReactQueryNative();
 
-// 6. Initial theme scheme: resolved synchronously by ThemeProvider from stores/settings on first render.
+// 6. Themes: importing @/theme (via providers) runs createTheme once at module scope — a bad brand
+//    or override throws here, loudly. Mode is resolved by Kagaz's ThemeProvider from stores/settings.
 
 // 7. OS-level notification handlers (Android channels + iOS VoIP).
 registerNotificationHandlers();
@@ -54,7 +55,7 @@ async function runStep(name: string, step: () => Promise<unknown>) {
 }
 
 async function bootstrapOnMount() {
-  // 9. Load fonts — TODO(fonts): add families to assets/fonts/ and load them here (blocking render).
+  // 9. No font loading: the Gaming brand's fonts are embedded at build time by its config plugin.
   await runStep('crash', initCrash); // 10
   await runStep('push', initPush); // 11
   await runStep('remoteConfig', loadRemoteConfig); // 12

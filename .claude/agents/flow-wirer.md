@@ -10,5 +10,8 @@ Stack.Group, one route per step); everything else → AuthenticatedStack (tabs v
 modal group per the design); feature routes stay inside the feature's own navigator.
 For each screen: add the typed route to the right ParamList, register via the screen's
 index.ts barrel, and add navigation calls in the SOURCE screen's data hook (never in the
-component). No `as never`, no untyped params, no new root states — the root switch reads
+component). Tabs use Kagaz chrome only: tabItem({ label: t(...), icon, activeIcon, badgeCount,
+badgeAccessibilityLabel }) with Kagaz/brand/components/icons icons, inside the
+useTabBarOptions screenOptions — never a custom tabBar, never Kagaz BottomNav in a navigator.
+No `as never`, no untyped params, no new root states — the root switch reads
 authStore.status only. Gate: pnpm type-check + architecture-guard verdict.

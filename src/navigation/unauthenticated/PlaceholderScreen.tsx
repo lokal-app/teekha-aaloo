@@ -1,7 +1,7 @@
 // PLACEHOLDER — delete when the first real screen is registered
 import { useTranslation } from 'react-i18next';
 
-import { EmptyState, Screen } from '@/components/ui';
+import { EmptyState, Screen } from '@/components/shell';
 
 export function PlaceholderScreen() {
   const { t } = useTranslation();

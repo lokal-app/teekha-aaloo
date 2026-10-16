@@ -4,3 +4,10 @@ ios
 .expo
 dist
 pnpm-lock.yaml
+# Verbatim harness from the constitution — Prettier rewrites Markdown (e.g. __DEV__ → **DEV**)
+# and list structure, which changes the rules' meaning. Regenerate from the constitution instead.
+.claude/
+CLAUDE.md
+**/CLAUDE.md
+docs/ARCHITECTURE.md
+docs/CLAUDE_CODE_SETUP.md
