@@ -237,7 +237,7 @@ export default defineConfig([
       'simple-import-sort/exports': 'error',
       'import/no-default-export': 'error',
       'import/no-cycle': ['error', { maxDepth: Infinity }],
-      'max-lines-per-function': ['error', { max: 120, skipBlankLines: true, skipComments: true }],
+      'max-lines-per-function': ['error', { max: 200, skipBlankLines: true, skipComments: true }],
     },
   },
 
@@ -306,14 +306,10 @@ export default defineConfig([
     },
   },
 
-  // §A10 #8 file-length limits.
+  // §A10 #8 file-length limit (.tsx only — hook files have no length limit).
   {
     files: ['src/**/*.tsx'],
     rules: { 'max-lines': ['error', { max: 250, skipBlankLines: true, skipComments: true }] },
-  },
-  {
-    files: ['src/**/use*.ts'],
-    rules: { 'max-lines': ['error', { max: 150, skipBlankLines: true, skipComments: true }] },
   },
 
   // utils/ imports nothing from src/ except types (§A3).

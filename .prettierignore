@@ -9,3 +9,5 @@ pnpm-lock.yaml
 .claude/
 CLAUDE.md
 **/CLAUDE.md
+docs/ARCHITECTURE.md
+docs/CLAUDE_CODE_SETUP.md

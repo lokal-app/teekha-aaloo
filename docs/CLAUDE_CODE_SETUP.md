@@ -4,15 +4,15 @@
 
 Everything in this part ships inline in the template repo's `.claude/` — the canonical home. The layers and what each is for:
 
-| Layer                                       | Mechanism                                                                                                                                                                                             | Role                                                                                 |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| 1. Always-on / scoped context               | Root `CLAUDE.md`, scoped `CLAUDE.md` per folder, `.claude/rules/*.md` with `paths:` globs                                                                                                             | Tell Claude the rules where the work happens                                         |
-| 2. Procedures                               | Skills (`.claude/skills/<name>/SKILL.md`)                                                                                                                                                             | Make following the rules mechanical                                                  |
-| 3. Specialists                              | Agents (`.claude/agents/<name>.md`)                                                                                                                                                                   | Isolated contexts for build/review work; `memory: project` for learners              |
-| 4. Hard gates                               | Hooks (`.claude/settings.json` + `.claude/hooks/*`)                                                                                                                                                   | Block violations with exit codes — no reasoning involved                             |
-| 5. External knowledge                       | MCP servers (`.mcp.json`): Figma, Postman. Design-system truth: the installed Kagaz package (`node_modules/@lokal-app/kagaz-components/src/**/*.types.ts` JSDoc) + `.claude/figma/component-map.json` | Design, API-contract and component-API truth on tap                                  |
-| 6. Distribution _(optional — TODO, see B9)_ | Org plugin + marketplace                                                                                                                                                                              | One versioned harness for every app — only if cross-app drift becomes a real problem |
-| 7. CI backstop                              | GitHub Action PR review                                                                                                                                                                               | Enforcement even when code wasn't written in Claude Code                             |
+| Layer | Mechanism | Role |
+|---|---|---|
+| 1. Always-on / scoped context | Root `CLAUDE.md`, scoped `CLAUDE.md` per folder, `.claude/rules/*.md` with `paths:` globs | Tell Claude the rules where the work happens |
+| 2. Procedures | Skills (`.claude/skills/<name>/SKILL.md`) | Make following the rules mechanical |
+| 3. Specialists | Agents (`.claude/agents/<name>.md`) | Isolated contexts for build/review work; `memory: project` for learners |
+| 4. Hard gates | Hooks (`.claude/settings.json` + `.claude/hooks/*`) | Block violations with exit codes — no reasoning involved |
+| 5. External knowledge | MCP servers (`.mcp.json`): Figma, Postman. Design-system truth: the installed Kagaz package (`node_modules/@lokal-app/kagaz-components/src/**/*.types.ts` JSDoc) + `.claude/figma/component-map.json` | Design, API-contract and component-API truth on tap |
+| 6. Distribution *(optional — TODO, see B9)* | Org plugin + marketplace | One versioned harness for every app — only if cross-app drift becomes a real problem |
+| 7. CI backstop | GitHub Action PR review | Enforcement even when code wasn't written in Claude Code |
 
 Determinism comes from the **gates between steps** (lint, type-check, `kagaz:check`, schema validation — exit codes, not reasoning), never from longer prompts. The mega-agent anti-pattern (all rules in one giant description) remains rejected.
 
@@ -62,7 +62,6 @@ live in scoped CLAUDE.md files (loaded automatically when you touch those folder
 Full text: docs/ARCHITECTURE.md (§A7 = the design-system contract).
 
 ## Design system = Kagaz (read before ANY UI work)
-
 - UI comes from @lokal-app/kagaz-components + this app's ONE brand (src/theme/brand.ts).
   Kagaz owns every token, component, icon, font and the tab-bar/navigation look.
 - GATEWAY: Kagaz enters the app in exactly two folders — src/components/ui/ (components,
@@ -90,18 +89,16 @@ Full text: docs/ARCHITECTURE.md (§A7 = the design-system contract).
   (@lokal-app/kagaz-token-police) is OPT-IN: only when the developer asks, via /enable-token-police.
 
 ## Where new code goes
-
-- Pure helper (no React, no side effects) → src/utils/
-- Infrastructure / integration (no business) → src/lib/
+- Pure helper (no React, no side effects)        → src/utils/
+- Infrastructure / integration (no business)     → src/lib/
 - Isolated feature (4-of-4: own domain, terminal navigator, no spine state,
-  deletable in one PR) → src/features/<name>/
+  deletable in one PR)                            → src/features/<name>/
 - Otherwise (the common case) → spine: api/<resource>/ • components/<area|common|shell|icons>/ •
   screens/<area>/<screen>/ • stores/<area>/ • hooks/use<Name>.ts (hooks/ is the ONE flat folder)
 - New top-level src/ folder, new shell primitive, new dependency, Kagaz version change → STOP, ADR
   (Kagaz upgrades only via /kagaz-upgrade).
 
 ## Dependency direction (one-way)
-
 theme → Kagaz only • components/ui → Kagaz only (the gateway) • utils → nothing • lib → utils
 only (never Kagaz) • hooks → lib+utils+theme • components/shell → ui+theme+utils •
 components/* → ui+shell+icons+theme+utils+hooks (NEVER api/stores/screens, NEVER @lokal-app/*) •
@@ -110,7 +107,6 @@ features → leaf (never other features, never spine stores/screens). Components
 read stores — data arrives via props.
 
 ## Canonical shapes (scaffold with the skills, never by hand)
-
 - Screen: screens/<area>/<screen>/{<Name>Screen.tsx, use<Name>Screen.ts, styles.ts,
   index.ts, useTrack.ts?, constants.ts?, components/?, variants/?}. Screen file = render
   only, exactly ONE component, built from Kagaz components + shell; the data hook owns
@@ -131,7 +127,6 @@ read stores — data arrives via props.
 - Feature: features/<name>/{api,components,screens,stores?,hooks?,navigator.tsx,types.ts,index.ts}.
 
 ## Styling (absolute)
-
 Three channels, no fourth: (1) Kagaz component props (variant/fill/size/state…) are the ONLY
 way to change a Kagaz component's look; (2) Kagaz primitives with token-named props —
 <VStack gap={16} padding={16} background="surface.page.default">, <Text variant="label1P"
@@ -147,26 +142,22 @@ Brand-optional tokens (accent02-04, highlighter, effects) and nullable component
 theme/overrides.ts + theme/skins/* with a Figma citation. Check light AND dark.
 
 ## Naming
-
 Folders kebab-case • components PascalCase (screens end in Screen; never a Kagaz export name) •
 icons <Name>Icon • other files camelCase • named exports only • api hooks
 use<Get|List|Create|Update|Delete><Noun> • stores use<Name>Store • translation keys
 area.scope.key • analytics events area_object_action.
 
 ## Barrels — boundary only
-
 index.ts allowed ONLY at: features/<x>/, lib/<slot>/, theme/, components/ui/ (the Kagaz
 gateway), components/shell/, components/icons/, screens/<area>/<screen>/, stores/<area>/. Never
 at layer roots, never cascading, never partial; only components/ui re-exports Kagaz components.
 
 ## Always
-
 t() for every user-facing string INCLUDING Kagaz label/accessibility props (never rely on
 Kagaz's English defaults) • lib/logger not console • FlashList not FlatList • expo-image not
 Image • dayjs • zod • no any/ts-ignore/non-null on optional tokens.
 
 ## Workflow
-
 Scaffold via skills: /create-screen /create-component /add-api-resource /add-store
 /create-feature /add-adapter /api-from-collection /figma-implement /implement-feature
 /add-skin /kagaz-upgrade (+ /enable-token-police, only when the developer asks). Delegate UI work to ui-implementer, Figma→Kagaz mapping to
@@ -180,11 +171,9 @@ finishing; never disable a rule to pass. pnpm check-all = lint + type-check + ka
 ```markdown
 ---
 paths:
-  - 'src/**/*.tsx'
+  - "src/**/*.tsx"
 ---
-
 # Styling & design-system rules (absolute, every component and screen)
-
 - KAGAZ FIRST. Before writing any JSX element that looks like a control, input, chip, tag, avatar,
   badge, snackbar, tooltip, divider, tab, toggle, pointer or icon: it exists in
   @lokal-app/kagaz-components — or, for brand-only pieces (e.g. Gaming PlayCard/ProgressBar), in
@@ -212,17 +201,15 @@ paths:
 - Figma shows a value/variant/component Kagaz lacks: STOP — Kagaz gap protocol (§A7.7). Never approximate.
 ```
 
-_Load-bearing note:_ `paths:`-scoped rules have known gaps (they may not be injected on Write, only on Read), so this file is a convenience layer, never the enforcement. The same rules live in the always-loaded root `CLAUDE.md` (B2) and are enforced mechanically by `react-native/no-inline-styles`, `no-restricted-imports` and `design-system/*` (or Kagaz's `token-police/*` once opted in) via the PostToolUse lint hook, and by `guard-edit.sh`.
+*Load-bearing note:* `paths:`-scoped rules have known gaps (they may not be injected on Write, only on Read), so this file is a convenience layer, never the enforcement. The same rules live in the always-loaded root `CLAUDE.md` (B2) and are enforced mechanically by `react-native/no-inline-styles`, `no-restricted-imports` and `design-system/*` (or Kagaz's `token-police/*` once opted in) via the PostToolUse lint hook, and by `guard-edit.sh`.
 
 ## B4. Scoped `CLAUDE.md` files (verbatim, one per folder)
 
 Each is deliberately ≤ 25 lines — they load on demand when Claude touches the folder.
 
 **`src/api/CLAUDE.md`**
-
 ```markdown
 # api/ — server state only
-
 Shape per resource (exactly): types.ts (zod wire schemas + ApiX = z.infer types + clean app
 types together), transformer.ts (to<Noun>() — the ONLY wire↔app meeting point, mandatory even
 when near-identity), use<Verb><Noun>.ts (one react-query-kit hook per file). No index.ts.
@@ -243,10 +230,8 @@ Scaffold with /add-api-resource or /api-from-collection (Postman).
 ```
 
 **`src/screens/CLAUDE.md`**
-
 ```markdown
 # screens/ — two-level: screens/<area>/<screen>/
-
 Files: <Name>Screen.tsx (render ONLY, exactly ONE component — others go to ./components/;
 no queries, stores, navigation, or analytics), use<Name>Screen.ts (ALL wiring; typed
 useNavigation inside — screens never take a navigation prop; returns one object incl.
@@ -268,10 +253,8 @@ Scaffold with /create-screen (or /figma-implement from a Figma frame).
 ```
 
 **`src/components/CLAUDE.md`**
-
 ```markdown
 # components/ — app compositions of Kagaz (presentational only)
-
 Kagaz is the design system. ui/ = the Kagaz GATEWAY (own CLAUDE.md): pass-through re-exports,
 the only importer of @lokal-app/kagaz-*; everything here imports Kagaz from @/components/ui.
 shell/ = the CLOSED six app-shell pieces (own CLAUDE.md). icons/ = app icons Kagaz lacks (own
@@ -288,10 +271,8 @@ Styling per the absolute pattern: Kagaz props → primitives' token props → cr
 ```
 
 **`src/components/ui/CLAUDE.md`**
-
 ```markdown
 # components/ui/ — the Kagaz gateway (the ONLY place Kagaz components enter the app)
-
 Shape (locked): kagaz.ts (shared re-exports) • brand.ts (this brand's /components /icons
 /geometry; `export {};` if none) • navigation.ts (useTabBarOptions, tabItem) • index.ts
 (export * from kagaz + navigation, + brand once it has a re-export) • adapters/<Name>.tsx (ONLY via /kagaz-upgrade) • CLAUDE.md.
@@ -307,29 +288,24 @@ Imports: Kagaz packages only (+ @/theme inside adapters). Nothing else from src/
 ```
 
 **`src/components/shell/CLAUDE.md`**
-
 ```markdown
 # components/shell/ — the app shell Kagaz deliberately leaves to apps (CLOSED list)
-
 Exactly six: Screen, LoadingState, ErrorState, EmptyState, BottomSheet/, ToastMessage + index.ts.
 A seventh file fails lint (design-system/locked-folders); extending = ADR proving Kagaz won't own it.
 Built ONLY from @/components/ui (Spinner, Text, Button, FloatingSnackbar, VStack…)
-
-- createStyles(tokens) + the one locked-stack lib each wraps (safe-area-context,
-  keyboard-controller, @gorhom/bottom-sheet, react-native-flash-message). Imports: theme/,
-  utils/, @/components/ui, that lib — nothing else (never a brand-only component: shell is brand-neutral). Contract: named export + exported <Name>Props; text
-  arrives via props (NEVER t() here); no business logic, data, stores or navigation; style prop
-  layout-only, merged last. Screen owns safe area, page background (surface.page.default), status
-  bar style (useTheme().mode) and keyboard-aware scrolling (the Kagaz tab bar is solid: no inset).
-  ToastMessage renders Kagaz FloatingSnackbar for react-native-flash-message (mounted in providers/);
-  showToast() lives in lib/toast and is called from data hooks only.
++ createStyles(tokens) + the one locked-stack lib each wraps (safe-area-context,
+keyboard-controller, @gorhom/bottom-sheet, react-native-flash-message). Imports: theme/,
+utils/, @/components/ui, that lib — nothing else (never a brand-only component: shell is brand-neutral). Contract: named export + exported <Name>Props; text
+arrives via props (NEVER t() here); no business logic, data, stores or navigation; style prop
+layout-only, merged last. Screen owns safe area, page background (surface.page.default), status
+bar style (useTheme().mode) and keyboard-aware scrolling (the Kagaz tab bar is solid: no inset).
+ToastMessage renders Kagaz FloatingSnackbar for react-native-flash-message (mounted in providers/);
+showToast() lives in lib/toast and is called from data hooks only.
 ```
 
 **`src/components/icons/CLAUDE.md`**
-
 ```markdown
 # components/icons/ — app icons Kagaz doesn't ship
-
 Check first: Kagaz icons (@lokal-app/kagaz-components) and the brand's icons
 (@lokal-app/kagaz-brand-<brand>/icons, e.g. CoinIcon). Only if neither has it: <Name>Icon.tsx here, generated
 from the Figma Phosphor component (react-native-svg, viewBox from Figma, single fill={color}),
@@ -340,10 +316,8 @@ No icon fonts, no @expo/vector-icons, no PNG icons. A generic icon many apps nee
 ```
 
 **`src/theme/CLAUDE.md`**
-
 ```markdown
 # theme/ — this app's binding to Kagaz (the ONLY folder that touches tokens/brand packages)
-
 Shape (locked): brand.ts (the ONE brand import) • overrides.ts (createTheme overrides, ships {}) •
 skins/<name>.ts (optional named overrides) • mergeOverrides.ts • registry.ts (themes built ONCE
 at module scope: createTheme(brand, overrides[⊕skin]) + ThemeName + DEFAULT_THEME) •
@@ -363,10 +337,8 @@ changes only through /kagaz-upgrade.
 ```
 
 **`src/stores/CLAUDE.md`**
-
 ```markdown
 # stores/ — Zustand client state
-
 stores/<area>/<name>Store.ts + index.ts barrel. State type + Actions type; actions defined
 inside create(); selector-only consumption (useXStore(s => s.field)); getState() only outside
 React. persist → MMKV adapter from lib/storage with explicit partialize. NEVER server data
@@ -375,10 +347,8 @@ Scaffold with /add-store.
 ```
 
 **`src/lib/CLAUDE.md`**
-
 ```markdown
 # lib/ — infrastructure ONLY (the cardinal rule)
-
 Integrations and adapters: api-client, logger, storage, i18n, permissions, toast + vendor slots
 (analytics, crash, push, remoteConfig, observability, payment). A slot = index.ts (public
 API) + types.ts (contract) + adapter.ts (impl; ships as no-op). Swap vendors by replacing
@@ -394,10 +364,8 @@ enum). Refresh token → secureStorage; access token → MMKV. Never AsyncStorag
 ```
 
 **`src/features/CLAUDE.md`**
-
 ```markdown
 # features/ — isolated business code (4-of-4 or it's spine)
-
 Admission test (ALL must hold): own domain model • terminal navigator boundary • zero spine
 state read/write • deletable in one PR. Shape: api/, components/, screens/, stores?/, hooks?/,
 navigator.tsx, types.ts, index.ts (the ONLY public surface). Never import another feature,
@@ -406,19 +374,16 @@ Scaffold with /create-feature (it runs the admission test first).
 ```
 
 **`src/utils/CLAUDE.md`**
-
 ```markdown
 # utils/ — pure helpers
-
 No React, no hooks, no side effects, no framework imports, no I/O. Deterministic
 input → output. If it needs a hook → src/hooks/. If it touches a vendor/integration → lib/.
 ```
 
-**`src/navigation/CLAUDE.md`**
 
+**`src/navigation/CLAUDE.md`**
 ```markdown
 # navigation/ — locked three-state root, Kagaz chrome
-
 RootNavigator renders NavigationContainer (navigationRef, linking, theme =
 navigationThemes[themeName][mode] from @/theme) and switches ONLY on authStore.status:
 restoring | unauthenticated | authenticated. Intro slider = initialRouteName of
@@ -433,10 +398,8 @@ navigators — navigation calls live in screen data hooks.
 ```
 
 **`src/providers/CLAUDE.md`**
-
 ```markdown
 # providers/ — the single composition root (providers/index.tsx only)
-
 Fixed order, outermost first: GestureHandlerRootView → SafeAreaProvider → KeyboardProvider →
 QueryClientProvider → Kagaz ThemeProvider → BottomSheetModalProvider → children +
 <FlashMessage MessageComponent={ToastMessage} />. ThemeProvider: theme={themes[themeName] ??
@@ -448,10 +411,9 @@ change needs an ADR).
 
 ## B5. Agents (`.claude/agents/`, verbatim)
 
-Nine agents. Each has a narrow job, a tool whitelist (`tools:` — the agent frontmatter key; `allowed-tools:` is the _skill_ key), and (where learning helps) `memory: project` so it accumulates project-specific knowledge across sessions (project scope — verify at setup where Claude Code stores it and whether to commit it). Every agent that writes or reviews UI runs **Kagaz step 0** (§A7.4) and the **gap protocol** (§A7.7); none may edit `node_modules`, add a token, or touch a Kagaz version.
+Nine agents. Each has a narrow job, a tool whitelist (`tools:` — the agent frontmatter key; `allowed-tools:` is the *skill* key), and (where learning helps) `memory: project` so it accumulates project-specific knowledge across sessions (project scope — verify at setup where Claude Code stores it and whether to commit it). Every agent that writes or reviews UI runs **Kagaz step 0** (§A7.4) and the **gap protocol** (§A7.7); none may edit `node_modules`, add a token, or touch a Kagaz version.
 
 **`.claude/agents/architecture-guard.md`**
-
 ```markdown
 ---
 name: architecture-guard
@@ -461,17 +423,14 @@ description: Decide WHERE code belongs and verify a proposed/actual change respe
 tools: Read, Grep, Glob, Bash
 memory: project
 ---
-
 You are the architecture guard for a rn-template app. Source of truth: root CLAUDE.md
-
-- scoped CLAUDE.md files + docs/ARCHITECTURE.md (this repo's constitution; §A7 = Kagaz).
-  Given a feature/change description, output a PLACEMENT PLAN:
-
++ scoped CLAUDE.md files + docs/ARCHITECTURE.md (this repo's constitution; §A7 = Kagaz).
+Given a feature/change description, output a PLACEMENT PLAN:
 1. Run the decision tree (utils → lib → features 4-of-4 → spine). For features/, evaluate
    each of the 4 criteria explicitly with evidence; one failure = spine.
 2. For every UI element in the change run Kagaz step 0: name the Kagaz export that covers it —
-   shared (node_modules/@lokal-app/kagaz-components/src/_/_.types.ts) or this app's brand
-   (node_modules/@lokal-app/kagaz-brand-<brand>/src/components/_/_.types.ts, /icons), per
+   shared (node_modules/@lokal-app/kagaz-components/src/*/*.types.ts) or this app's brand
+   (node_modules/@lokal-app/kagaz-brand-<brand>/src/components/*/*.types.ts, /icons), per
    docs/ARCHITECTURE.md §A7.6. Only elements with no Kagaz export get a file, placed by the
    ladder (shell is closed; icons/; screen components/; components/<area>/; components/common/).
    A Kagaz component with different looks → GAP(variant); a brand-unique design-system component
@@ -484,13 +443,12 @@ You are the architecture guard for a rn-template app. Source of truth: root CLAU
 5. Check barrel whitelist; reject any new index.ts outside it or re-exporting Kagaz outside
    components/ui. Reject any @lokal-app/kagaz-* import outside components/ui/ and theme/ (the
    gateway, §A7.8); list the gateway lines (ui/kagaz.ts, ui/brand.ts) the change must add.
-   Output format: PLACEMENT PLAN (file list) / KAGAZ USAGE (element → Kagaz export) / GAPS /
-   VIOLATIONS (numbered, each with the rule and the fix) / VERDICT: APPROVE or REVISE.
-   Never propose rule changes — point to the ADR process.
+Output format: PLACEMENT PLAN (file list) / KAGAZ USAGE (element → Kagaz export) / GAPS /
+VIOLATIONS (numbered, each with the rule and the fix) / VERDICT: APPROVE or REVISE.
+Never propose rule changes — point to the ADR process.
 ```
 
 **`.claude/agents/ui-implementer.md`**
-
 ```markdown
 ---
 name: ui-implementer
@@ -500,9 +458,7 @@ description: Build or modify UI strictly on the Kagaz design system — app comp
 tools: Read, Edit, Write, Grep, Glob, Bash
 memory: project
 ---
-
 You build UI for a rn-template app whose design system is Kagaz. Before writing ANY component:
-
 1. Read docs/ARCHITECTURE.md §A7 in full (tokens, styling channels, ladder, shell, inventory,
    gap protocol) and src/theme/index.ts (the only theme surface: useStyles, useTokens, Tokens).
 2. KAGAZ STEP 0: for each element, find the Kagaz export (§A7.6) — first the shared library,
@@ -517,28 +473,27 @@ You build UI for a rn-template app whose design system is Kagaz. Before writing 
    component Kagaz lacks is a GAP for the brand package — never app code.
 3. Read the existing components/<area>, components/common and components/icons first — reuse
    before creating.
-   Absolute rules: no inline styles ever; Kagaz props → primitives (VStack/HStack/Box token props,
-   <Text variant color>) → module-scoped createStyles(tokens) + useStyles (in-file tail for
-   components, styles.ts for screens); style on a Kagaz element is layout-only; every colour/
-   spacing/radius/border/font/opacity/shadow/motion value from tokens (Figma path camelCased);
-   brand-optional tokens via ?. with a semantic fallback; text only via Kagaz <Text>; touchables
-   only Kagaz buttons / Kagaz Pressable; raised looks via `elevated` / tokens.component.card.elevation;
-   icons = Kagaz → brand /icons → components/icons (pass as
-   components to slots); FlashList for lists; expo-image for images; named exports; t() for all
-   strings and EVERY Kagaz label/a11y prop (never rely on English defaults) — except inside
-   components/shell, which takes text via props.
-   If a design requires a value, variant or component Kagaz lacks: STOP and report it as a GAP
-   (§A7.7) with the Figma node — never approximate, never add a token or override yourself, never
-   build a look-alike. Only when the task explicitly approves a temporary composition: build it in
-   components/common/ from Kagaz primitives with the // KAGAZ-GAP(<url>) first line and add the
-   docs/kagaz-gaps.md row.
-   components/shell is a closed list of six — never add a seventh.
-   Check the result renders correctly in light AND dark (no brand/mode branching for colours).
-   After every file: run pnpm lint on it; fix until clean. Never disable a rule.
+Absolute rules: no inline styles ever; Kagaz props → primitives (VStack/HStack/Box token props,
+<Text variant color>) → module-scoped createStyles(tokens) + useStyles (in-file tail for
+components, styles.ts for screens); style on a Kagaz element is layout-only; every colour/
+spacing/radius/border/font/opacity/shadow/motion value from tokens (Figma path camelCased);
+brand-optional tokens via ?. with a semantic fallback; text only via Kagaz <Text>; touchables
+only Kagaz buttons / Kagaz Pressable; raised looks via `elevated` / tokens.component.card.elevation;
+icons = Kagaz → brand /icons → components/icons (pass as
+components to slots); FlashList for lists; expo-image for images; named exports; t() for all
+strings and EVERY Kagaz label/a11y prop (never rely on English defaults) — except inside
+components/shell, which takes text via props.
+If a design requires a value, variant or component Kagaz lacks: STOP and report it as a GAP
+(§A7.7) with the Figma node — never approximate, never add a token or override yourself, never
+build a look-alike. Only when the task explicitly approves a temporary composition: build it in
+components/common/ from Kagaz primitives with the // KAGAZ-GAP(<url>) first line and add the
+docs/kagaz-gaps.md row.
+components/shell is a closed list of six — never add a seventh.
+Check the result renders correctly in light AND dark (no brand/mode branching for colours).
+After every file: run pnpm lint on it; fix until clean. Never disable a rule.
 ```
 
 **`.claude/agents/screen-builder.md`**
-
 ```markdown
 ---
 name: screen-builder
@@ -548,7 +503,6 @@ description: Create complete screens in the canonical screens/<area>/<screen>/ s
 tools: Read, Edit, Write, Grep, Glob, Bash
 memory: project
 ---
-
 You build screens for a rn-template app. Canonical shape, no deviations:
 <Name>Screen.tsx (render only, exactly ONE component) + use<Name>Screen.ts (ALL wiring) +
 styles.ts (createStyles(tokens) ONLY) + index.ts + optional useTrack.ts / constants.ts /
@@ -577,7 +531,6 @@ Verify: pnpm lint on every touched file + pnpm type-check before reporting done.
 ```
 
 **`.claude/agents/feature-builder.md`**
-
 ```markdown
 ---
 name: feature-builder
@@ -585,7 +538,6 @@ description: Scaffold and implement isolated features in features/<name>/ AFTER 
   admission test passes. Handles multi-screen features with navigator, stores, and api.
 tools: Read, Edit, Write, Grep, Glob, Bash
 ---
-
 You build self-contained features. PRECONDITION: architecture-guard has approved 4-of-4
 admission (own domain, terminal navigator, no spine state, deletable in one PR). If you have
 no approval in context, request it before writing files.
@@ -599,7 +551,6 @@ your internals) and report them.
 ```
 
 **`.claude/agents/pr-reviewer.md`**
-
 ```markdown
 ---
 name: pr-reviewer
@@ -609,16 +560,14 @@ description: Thorough constitution review of staged changes, a branch diff, or a
 tools: Read, Grep, Glob, Bash
 memory: project
 ---
-
 You review diffs against the rn-template constitution. Procedure:
-
 1. Collect the diff (git diff --staged, or the range you were given) and the list of files.
 2. For each file, check by category: placement (decision tree, canonical shapes, file
    inventory — flag files not in the legal inventory), dependency direction, barrels
    (whitelist only), naming/casing, screen shape (one component per screen file, no
    navigation prop, useTrack not called from JSX, no sibling -v2 variant folders), state
    (selector-only Zustand, no server data in stores, react-query-kit conventions, getKey()
-   invalidation, non-prod validateResponse (APP_ENV gate, never **DEV**), transformer-in-
+   invalidation, non-prod validateResponse (APP_ENV gate, never __DEV__), transformer-in-
    fetcher, cache holds app types only, Api* types confined to src/api/**, kit object
    returned unmodified), micro-conventions (named exports, t(), logger, FlashList,
    expo-image, any/ts-ignore, a11y, line limits), navigation (typed params, no
@@ -648,13 +597,12 @@ You review diffs against the rn-template constitution. Procedure:
      opted in) unchanged outside a /kagaz-upgrade PR; one brand; exactly one token-value tier
      active in eslint.config.mjs; no eslint-disable for design-system/* (or token-police/*).
 4. Run pnpm lint, pnpm type-check and pnpm kagaz:check; include failures as findings.
-   Output: findings as `path:line — [RULE] problem → fix`, severity-ordered (BLOCKER/MAJOR/MINOR),
-   then VERDICT: APPROVE or REQUEST CHANGES. A single BLOCKER (rule violation without a linked
-   ADR) means REQUEST CHANGES. Do not soften findings; do not propose rule changes.
+Output: findings as `path:line — [RULE] problem → fix`, severity-ordered (BLOCKER/MAJOR/MINOR),
+then VERDICT: APPROVE or REQUEST CHANGES. A single BLOCKER (rule violation without a linked
+ADR) means REQUEST CHANGES. Do not soften findings; do not propose rule changes.
 ```
 
 **`.claude/agents/adapter-wirer.md`**
-
 ```markdown
 ---
 name: adapter-wirer
@@ -662,9 +610,7 @@ description: Replace a lib/<slot>/ no-op adapter with a real vendor implementati
   (analytics, crash, push, remoteConfig, observability, payment).
 tools: Read, Edit, Write, Grep, Glob, Bash
 ---
-
 You wire vendor SDKs into rn-template adapter slots. Procedure:
-
 1. Read lib/<slot>/types.ts — the contract is law; the public API in index.ts must not change.
 2. Read the slot README for the recommended vendor + wiring steps and gotchas.
 3. Ask the user to install the SDK (`! pnpm add <sdk>` — guard-bash blocks agent-run installs;
@@ -673,11 +619,10 @@ You wire vendor SDKs into rn-template adapter slots. Procedure:
    canonical App.tsx bootstrap slot (§ bootstrap order — never reorder it).
 4. No vendor import may appear outside lib/<slot>/. Grep to verify.
 5. pnpm lint + pnpm type-check + pnpm prebuild:development --no-install dry sanity.
-   Report: files changed, native config added, exactly which bootstrap slot was filled.
+Report: files changed, native config added, exactly which bootstrap slot was filled.
 ```
 
 **`.claude/agents/figma-extractor.md`**
-
 ```markdown
 ---
 name: figma-extractor
@@ -686,7 +631,6 @@ description: Stage 1 of /figma-implement — read the app's Figma frames via MCP
   agent with Figma MCP access.
 tools: Read, Write, Grep, Glob, mcp__figma__*
 ---
-
 Extract from the given Figma URL via the Figma MCP tools, for the target frames only:
 (1) every component INSTANCE: its main component's set name + key, its variant/component
 property values, its text overrides, and its node id; (2) every variable binding and text
@@ -704,7 +648,6 @@ re-validates.
 ```
 
 **`.claude/agents/kagaz-resolver.md`**
-
 ```markdown
 ---
 name: kagaz-resolver
@@ -713,9 +656,8 @@ description: Stage 2 of /figma-implement (and on demand) — resolve design-pack
   every miss → a classified gap. Read-only on src/; writes only the resolution report.
 tools: Read, Write, Grep, Glob, Bash
 ---
-
 Inputs: .claude/state/design-package.json, .claude/figma/component-map.json, the installed
-Kagaz (node_modules/@lokal-app/kagaz-components/src/_/_.types.ts + package.json version),
+Kagaz (node_modules/@lokal-app/kagaz-components/src/*/*.types.ts + package.json version),
 src/theme/brand.ts, docs/ARCHITECTURE.md §A7.
 For each component instance: map to the Kagaz export; translate every Figma variant/component
 property to the Kagaz prop using the JSDoc in <Name>.types.ts (each prop names its Figma
@@ -742,7 +684,6 @@ variant with design's OK, or approve a KAGAZ-GAP composition) or explicitly defe
 ```
 
 **`.claude/agents/flow-wirer.md`**
-
 ```markdown
 ---
 name: flow-wirer
@@ -750,7 +691,6 @@ description: Stage 5 of /figma-implement (and navigation wiring generally) — r
   in the correct navigator with typed params and wire prototype connections as navigation calls.
 tools: Read, Edit, Write, Grep, Glob, Bash
 ---
-
 You wire navigation in the locked three-state structure. Placement rules: pre-auth screens
 (intro, login, registration steps) → UnauthenticatedStack (registration steps as the
 Stack.Group, one route per step); everything else → AuthenticatedStack (tabs vs pushed vs
@@ -769,16 +709,14 @@ authStore.status only. Gate: pnpm type-check + architecture-guard verdict.
 Twelve skills. Scaffolding skills run inline (cheap, deterministic); heavy ones fork to agents. All are auto-invocable — descriptions tell Claude when to reach for them without being asked — except `/enable-token-police`, which runs only when the developer invokes it. Every UI-producing skill starts with **Kagaz step 0** (§A7.4).
 
 **`.claude/skills/create-screen/SKILL.md`**
-
 ```markdown
 ---
 description: Scaffold a screen in the canonical screens/<area>/<screen>/ shape, built from
   Kagaz components + the shell, and register its route. Use whenever a new screen is needed —
   never create screen files by hand.
-argument-hint: '<area> <screen-name> [navigator: unauthenticated|authenticated|tabs|<feature>]'
-allowed-tools: 'Read Write Edit Grep Glob Bash'
+argument-hint: "<area> <screen-name> [navigator: unauthenticated|authenticated|tabs|<feature>]"
+allowed-tools: "Read Write Edit Grep Glob Bash"
 ---
-
 1. Resolve area (kebab-case) and ScreenName (PascalCase). Path: src/screens/<area>/<screen-name>/.
    If the folder exists, stop and report.
 2. Kagaz step 0: list the screen's UI elements and the Kagaz export for each — shared, then the
@@ -810,16 +748,14 @@ allowed-tools: 'Read Write Edit Grep Glob Bash'
 ```
 
 **`.claude/skills/add-api-resource/SKILL.md`**
-
 ```markdown
 ---
 description: Scaffold api/<resource>/ in the locked 3-file shape (types + transformer +
   react-query-kit hooks). Use for any new backend resource or endpoint group (manual
   variant — prefer /api-from-collection when a Postman collection exists).
-argument-hint: '<resource> <operations: get,list,create,update,delete> [--paginated]'
-allowed-tools: 'Read Write Edit Grep Glob Bash'
+argument-hint: "<resource> <operations: get,list,create,update,delete> [--paginated]"
+allowed-tools: "Read Write Edit Grep Glob Bash"
 ---
-
 1. Path src/api/<resource>/ (kebab-case). Create types.ts: one zod schema per wire entity
    (matching the wire EXACTLY — snake_case, nullability faithful), ApiX types via z.infer,
    then the clean app types (camelCase, Date objects, unions). Create transformer.ts:
@@ -838,15 +774,13 @@ allowed-tools: 'Read Write Edit Grep Glob Bash'
 ```
 
 **`.claude/skills/add-store/SKILL.md`**
-
 ```markdown
 ---
 description: Create a Zustand store in stores/<area>/ with the locked State/Actions shape.
   Use for any new client state — never hand-roll stores.
-argument-hint: '<area> <store-name> [--persist]'
-allowed-tools: 'Read Write Edit Grep Glob Bash'
+argument-hint: "<area> <store-name> [--persist]"
+allowed-tools: "Read Write Edit Grep Glob Bash"
 ---
-
 1. Path src/stores/<area>/<name>Store.ts (+ index.ts barrel created/updated to full re-export).
 2. Template: type <Name>State + type <Name>Actions; export const use<Name>Store =
    create<State & Actions>()(...); actions defined inside; initial state as a named const
@@ -859,18 +793,16 @@ allowed-tools: 'Read Write Edit Grep Glob Bash'
 ```
 
 **`.claude/skills/create-component/SKILL.md`**
-
 ```markdown
 ---
 description: Create an app component on the Kagaz design system at the correct ladder level
   (screen-local, area, common, icon) — after proving Kagaz doesn't already ship it. Use for
   ANY new component.
-argument-hint: '<ComponentName> [<area>|common|icon|screen:<area>/<screen>]'
-allowed-tools: 'Read Write Edit Grep Glob Bash'
+argument-hint: "<ComponentName> [<area>|common|icon|screen:<area>/<screen>]"
+allowed-tools: "Read Write Edit Grep Glob Bash"
 context: fork
 agent: ui-implementer
 ---
-
 0. KAGAZ STEP 0 (mandatory, reported): search docs/ARCHITECTURE.md §A7.6 and the Kagaz exports
    (eslint-plugin-design-system/kagaz-exports.json — shared + this brand's /components and
    /icons). If Kagaz ships it → STOP and answer "use <KagazExport> from @/components/ui with
@@ -899,15 +831,13 @@ agent: ui-implementer
 ```
 
 **`.claude/skills/create-feature/SKILL.md`**
-
 ```markdown
 ---
 description: Run the 4-of-4 features/ admission test and scaffold features/<name>/ if it
   passes (redirect to spine if not). Use whenever someone proposes "a new feature module".
-argument-hint: '<feature-name> <one-line description>'
-allowed-tools: 'Read Write Edit Grep Glob Bash Agent'
+argument-hint: "<feature-name> <one-line description>"
+allowed-tools: "Read Write Edit Grep Glob Bash Agent"
 ---
-
 1. Spawn architecture-guard with the feature description for the 4-of-4 test (own domain •
    terminal navigator • no spine state • deletable in one PR). Show the verdict to the user.
 2. FAIL any criterion → do NOT scaffold; output the spine placement plan instead
@@ -919,17 +849,15 @@ allowed-tools: 'Read Write Edit Grep Glob Bash Agent'
 ```
 
 **`.claude/skills/add-adapter/SKILL.md`**
-
 ```markdown
 ---
 description: Wire a real vendor SDK into a lib/<slot>/ adapter (analytics, crash, push,
   remoteConfig, observability, payment). Use whenever a vendor integration is requested.
-argument-hint: '<slot> <vendor>'
-allowed-tools: 'Read Grep Glob Agent'
+argument-hint: "<slot> <vendor>"
+allowed-tools: "Read Grep Glob Agent"
 context: fork
 agent: adapter-wirer
 ---
-
 Delegate to adapter-wirer with the slot + vendor. Acceptance: contract in types.ts unchanged,
 public API in index.ts unchanged, vendor imports confined to lib/<slot>/ (grep-verified),
 bootstrap slot filled per the canonical order, lint + type-check green. Report the diff
@@ -937,17 +865,15 @@ summary and any native config (app.config.ts plugins) added.
 ```
 
 **`.claude/skills/api-from-collection/SKILL.md`**
-
 ```markdown
 ---
 description: Generate api/<resource>/ folders from a Postman collection via the Postman MCP —
   DTOs from real response examples. Preferred over /add-api-resource whenever a collection
   or API spec exists.
-argument-hint: '<postman collection name or id> [resources to include]'
-allowed-tools: 'Read Write Edit Grep Glob Bash mcp__postman__*'
+argument-hint: "<postman collection name or id> [resources to include]"
+allowed-tools: "Read Write Edit Grep Glob Bash mcp__postman__*"
 context: fork
 ---
-
 1. Fetch the collection via Postman MCP; list folders/requests; confirm with the user which
    map to which <resource> (one api/ folder per resource, kebab-case).
 2. Per request: derive the types.ts zod wire schemas from the SAVED EXAMPLE RESPONSES (exact
@@ -964,23 +890,21 @@ context: fork
 ```
 
 **`.claude/skills/figma-implement/SKILL.md`**
-
 ```markdown
 ---
 description: The gated Figma-to-code pipeline on Kagaz — extract → resolve against Kagaz →
   compositions → screens → wire flows → verify. Use whenever implementing designs from a
   Figma URL.
-argument-hint: '<figma-url> [frames/pages to implement]'
-allowed-tools: 'Read Write Edit Grep Glob Bash Agent'
+argument-hint: "<figma-url> [frames/pages to implement]"
+allowed-tools: "Read Write Edit Grep Glob Bash Agent"
 ---
-
 Run stages IN ORDER. Every gate is a command exit code or an explicit zero-count — a failed
-gate HALTS the pipeline; report and stop. Never skip a gate, never proceed on red. 0. Preflight: .claude/figma/component-map.json present (ships pre-filled for the installed Kagaz
-version — its `kagazVersion` must equal node_modules/@lokal-app/kagaz-components version,
-else run /kagaz-upgrade's map refresh first; its `brandComponents` holds this app's brand);
-screen-map.json filled for these frames;
-Figma MCP reachable; pnpm kagaz:check green. Missing → prompt the user; stop.
-
+gate HALTS the pipeline; report and stop. Never skip a gate, never proceed on red.
+0. Preflight: .claude/figma/component-map.json present (ships pre-filled for the installed Kagaz
+   version — its `kagazVersion` must equal node_modules/@lokal-app/kagaz-components version,
+   else run /kagaz-upgrade's map refresh first; its `brandComponents` holds this app's brand);
+   screen-map.json filled for these frames;
+   Figma MCP reachable; pnpm kagaz:check green. Missing → prompt the user; stop.
 1. EXTRACT — spawn figma-extractor with the URL. Gate: design-package.json validates against
    the schema (node .claude/figma/validate.mjs).
 2. RESOLVE AGAINST KAGAZ — spawn kagaz-resolver. Gate: zero GAP(design-bug), zero BLOCKERS
@@ -1002,8 +926,7 @@ Figma MCP reachable; pnpm kagaz:check green. Missing → prompt the user; stop.
    and refuse to mark complete.
 ```
 
-**`.claude/skills/implement-feature/SKILL.md`** — _the master skill: PRD + Figma → plan → build → verify_
-
+**`.claude/skills/implement-feature/SKILL.md`** — *the master skill: PRD + Figma → plan → build → verify*
 ```markdown
 ---
 description: End-to-end feature implementation from a PRD (+ optional Figma URL + optional
@@ -1012,7 +935,6 @@ description: End-to-end feature implementation from a PRD (+ optional Figma URL 
 argument-hint: "<path-to-PRD-or-inline-brief> [figma-url] [postman-collection]"
 allowed-tools: "Read Write Edit Grep Glob Bash Agent"
 ---
-
 PHASE 1 — UNDERSTAND. Read the PRD fully. Extract: user flows, screens, data entities,
 API needs, client state, edge cases, analytics events. List ambiguities and ASK the user
 now — never guess business logic.
@@ -1025,56 +947,52 @@ Kagaz components per screen, compositions to build, Kagaz gaps (filed / deferred
 KAGAZ-GAP compositions), analytics events, open questions. PAUSE for user approval. Do not
 write src/ code before approval.
 PHASE 4 — BUILD, in this order with gates between each:
-a. API: /api-from-collection if a collection was given, else /add-api-resource per entity.
-b. State: /add-store per client-state concern.
-c. Design: if figma-url given → /figma-implement scoped to this feature's frames (stages
-3–5; stages 1–2 already ran); else /create-component (Kagaz step 0 first) +
-/create-screen per the plan (ui-implementer/screen-builder).
-d. Flows: flow-wirer for navigation + analytics events via lib/analytics.
-Gate after each sub-step: pnpm lint + pnpm type-check.
+  a. API: /api-from-collection if a collection was given, else /add-api-resource per entity.
+  b. State: /add-store per client-state concern.
+  c. Design: if figma-url given → /figma-implement scoped to this feature's frames (stages
+     3–5; stages 1–2 already ran); else /create-component (Kagaz step 0 first) +
+     /create-screen per the plan (ui-implementer/screen-builder).
+  d. Flows: flow-wirer for navigation + analytics events via lib/analytics.
+  Gate after each sub-step: pnpm lint + pnpm type-check.
 PHASE 5 — VERIFY. pnpm check-all, then pr-reviewer on the full diff. Fix all BLOCKER/MAJOR
 findings and re-run until APPROVE. Output: plan link, file inventory, hook/store/screen/route
 summary, Kagaz usage + gaps, analytics events, anything deferred.
 ```
 
 **`.claude/skills/add-skin/SKILL.md`**
-
 ```markdown
 ---
 description: Add a named theme skin (e.g. festival) as Kagaz createTheme overrides layered on
   the app overrides — two files, zero component changes. Use for seasonal/campaign themes or
   remotely switched looks.
-argument-hint: '<skin-name> <figma-url-of-the-skin>'
-allowed-tools: 'Read Write Edit Grep Glob Bash mcp__figma__*'
+argument-hint: "<skin-name> <figma-url-of-the-skin>"
+allowed-tools: "Read Write Edit Grep Glob Bash mcp__figma__*"
 ---
-
 1. Read src/theme/{brand,overrides,registry}.ts and docs/ARCHITECTURE.md §A7.2.
 2. From the Figma source list exactly what the skin changes. Classify each change: a brand
    value (preferred: `brand` overrides — follows in both modes) / one semantic token per mode
    (`tokens.light|dark`) / a Kagaz component token (`components`). A change that is not
    expressible as one of these → STOP (it is a component change → Kagaz gap protocol).
 3. Write src/theme/skins/<skin-name>.ts: `export const <camel>Overrides =
-defineThemeOverrides({...})`, header comment = Figma URL + node ids + design sign-off; every
+   defineThemeOverrides({...})`, header comment = Figma URL + node ids + design sign-off; every
    hex value commented with its Figma variable/node. Override paths must exist (createTheme
    throws on unknown paths — that is the gate).
 4. Add ONE line to registry.ts (`<camel>: createTheme(brand, mergeOverrides(overrides,
-<camel>Overrides))`). navigationThemes picks it up automatically. Touch nothing else.
+   <camel>Overrides))`). navigationThemes picks it up automatically. Touch nothing else.
 5. If the skin is remote-controlled, document the remote-config value (= the ThemeName) in
    the PR; never hardcode a switch in components.
 6. Gate: pnpm check-all; app boots with settings.themeName = '<camel>' in light and dark.
 ```
 
 **`.claude/skills/kagaz-upgrade/SKILL.md`**
-
 ```markdown
 ---
 description: Upgrade the Kagaz design system (components + tokens + this app's brand package)
   to a new version in its own PR — refresh the generated maps, migrate breaking props, retire
   KAGAZ-GAP compositions. The ONLY sanctioned way to change a Kagaz version.
-argument-hint: '<target-version e.g. 1.1.0> [brand-version] [--bootstrap --from <KAGAZ_BASELINE>]'
-allowed-tools: 'Read Write Edit Grep Glob Bash Agent'
+argument-hint: "<target-version e.g. 1.1.0> [brand-version] [--bootstrap --from <KAGAZ_BASELINE>]"
+allowed-tools: "Read Write Edit Grep Glob Bash Agent"
 ---
-
 1. Preflight: clean working tree on a dedicated branch (kagaz-upgrade-<version>); record the
    current versions from package.json; read the Kagaz CHANGELOGs between current and target
    (github.com/lokal-app/kagaz packages/{components,tokens,brands/<brand>}/CHANGELOG.md via
@@ -1096,8 +1014,8 @@ allowed-tools: 'Read Write Edit Grep Glob Bash Agent'
    (exact pins; kagaz-tokens follows components; the brand version must peer-accept them).
    Wait for confirmation.
 3. Regenerate: `node scripts/kagaz-exports.mjs` (kagaz-exports.json, shared + brand); refresh
-   .claude/figma/component-map.json from the Kagaz repo's packages/components/src/_/figma_.json
-   and packages/brands/<brand>/src/components/_/figma_.json at the release tag (set
+   .claude/figma/component-map.json from the Kagaz repo's packages/components/src/*/figma*.json
+   and packages/brands/<brand>/src/components/*/figma*.json at the release tag (set
    kagazVersion + brandVersion); re-run lint (token-police too, if opted in); update the §A7.6 inventory and the §A7.1 token table
    in docs/ARCHITECTURE.md from the installed types; update
    eslint-plugin-design-system/kagaz-i18n-props.json for any new English-default prop.
@@ -1116,17 +1034,15 @@ allowed-tools: 'Read Write Edit Grep Glob Bash Agent'
    upgrade, map/doc refresh, migrations and gap retirements.
 ```
 
-**`.claude/skills/enable-token-police/SKILL.md`** — _opt-in only: run it when the developer asks_
-
+**`.claude/skills/enable-token-police/SKILL.md`** — *opt-in only: run it when the developer asks*
 ```markdown
 ---
 description: Opt this app into Kagaz's own token lint (token-police). Use ONLY when the developer
   explicitly asks to enable token-police; never on your own initiative.
-argument-hint: '[registry|git]'
-allowed-tools: 'Read Write Edit Grep Glob Bash'
+argument-hint: "[registry|git]"
+allowed-tools: "Read Write Edit Grep Glob Bash"
 disable-model-invocation: true
 ---
-
 1. Read the installed @lokal-app/kagaz-components version (KAGAZ_VERSION).
 2. Find the install source: `@lokal-app/kagaz-token-police@<KAGAZ_VERSION>` on GitHub Packages
    (`npm view`); if not published, the git pin to the commit of tag
@@ -1152,178 +1068,36 @@ Source: each Kagaz component's `figma.json` at the pinned release — shared com
   "kagazVersion": "1.0.0-next.2",
   "figmaFileKey": "SiZy9MpCZuqzJs1yiU8vRh",
   "components": [
-    {
-      "key": "003145f8c6c07826ebb34e61eb7d7128b5ca7ab7",
-      "figma": "Button",
-      "nodeId": "620:44746",
-      "export": "Button"
-    },
-    {
-      "key": "a7a8ce3c6945acd43b19bea7bf3c3f8e2c482713",
-      "figma": "Icon Button",
-      "nodeId": "439:33618",
-      "export": "IconButton"
-    },
-    {
-      "key": "c6b08afd1603c549b73e459ef4bb1fa532794764",
-      "figma": "Timer Button",
-      "nodeId": "597:37788",
-      "export": "TimerButton"
-    },
-    {
-      "key": "077c34cd1e6d67fba292cf019992dcf1cc8519d0",
-      "figma": "Text Input",
-      "nodeId": "407:45428",
-      "export": "TextInput"
-    },
-    {
-      "key": "0f7d6bd5fda0c6e7e4e4b0816291a68fa6bd4a4f",
-      "figma": "Text Area Input",
-      "nodeId": "429:13769",
-      "export": "TextArea"
-    },
-    {
-      "key": "bb5c31a8bfc8b7e02a1971102428bc37fe4621e4",
-      "figma": "Search Input",
-      "nodeId": "587:23986",
-      "export": "SearchInput"
-    },
-    {
-      "key": "19ff054d9ff9d9a9ff760a297dcc7ffc0cf17e7f",
-      "figma": "Dropdown Input",
-      "nodeId": "430:27546",
-      "export": "DropdownInput"
-    },
-    {
-      "key": "17e03f9a4278b728d70fc4c8d94069b3d057d8b0",
-      "figma": "OTP Input",
-      "nodeId": "428:8570",
-      "export": "OtpInput"
-    },
-    {
-      "key": "2bd2060b08c5f1d5bdf7d5997ca5665a001366a4",
-      "figma": "Checkbox / Checkbox-base",
-      "nodeId": "393:9220",
-      "export": "Checkbox"
-    },
-    {
-      "key": "27074249cddea52c4d0b34d7df50a73ccab37d25",
-      "figma": "Radio / Radio-base",
-      "nodeId": "458:33839",
-      "export": "Radio"
-    },
-    {
-      "key": "d2203600d2b2b945921c77507e94e1ab7e2a27dc",
-      "figma": "Toggle / Toggle-base",
-      "nodeId": "569:14389",
-      "export": "Toggle"
-    },
-    {
-      "key": "bd66f67456b911883a1a8bbfd03696a35654e44f",
-      "figma": "chips",
-      "nodeId": "635:61987",
-      "export": "Chip"
-    },
-    {
-      "key": "294bd6f8a827f82939eca80ce36b2d273e76e3c9",
-      "figma": "Chips / Timer-chip",
-      "nodeId": "688:13259",
-      "export": "TimerChip"
-    },
-    {
-      "key": "12770430f961db46bc00422e86fd305474c68dac",
-      "figma": "Tabs/Tab",
-      "nodeId": "636:62099",
-      "export": "SegmentedControl"
-    },
-    {
-      "key": "02fe64d0d684936a2b04a81e61f8cf09e2ab729d",
-      "figma": "tabs/tab-base",
-      "nodeId": "633:61530",
-      "export": "SegmentedControlItem"
-    },
-    {
-      "key": "0022f49c9653112bd1d4193ab54269f46f0aeb28",
-      "figma": "carousel-pointers",
-      "nodeId": "818:16365",
-      "export": "CarouselPointers"
-    },
-    {
-      "key": "9173c323a6a4429afef1c5f64f4a966591d4a0a5",
-      "figma": "Bottom Nav / nav",
-      "nodeId": "627:60078",
-      "export": "useTabBarOptions",
-      "note": "in a navigator: React Navigation tabs + useTabBarOptions; BottomNav only standalone"
-    },
-    {
-      "key": "628677de31b7b5c07bd940828a0eb24206cf3097",
-      "figma": "nav-item-base",
-      "nodeId": "627:59848",
-      "export": "tabItem",
-      "note": "standalone: BottomNavItem"
-    },
-    {
-      "key": "330739c06e7370c45ddfee6785c1082c4227b54a",
-      "figma": "Avatar / avatar",
-      "nodeId": "135:1081",
-      "export": "Avatar"
-    },
-    {
-      "key": "f6166af66d6b350297ba60e971b0be04df75bc44",
-      "figma": "Badge",
-      "nodeId": "358:9733",
-      "export": "Badge"
-    },
-    {
-      "key": "7daf30717db8ebc42e8bdd8b1d0659a6fe196e27",
-      "figma": "Divider",
-      "nodeId": "276:31823",
-      "export": "Divider"
-    },
-    {
-      "key": "65ddb0dfafd210d339215adccd569e20e2c15680",
-      "figma": "Tooltips",
-      "nodeId": "295:32545",
-      "export": "Tooltip"
-    },
-    {
-      "key": "3e2f6e18bfa4acda217f4fe3c877b6e33a365b24",
-      "figma": "Floating-Snackbar",
-      "nodeId": "534:12081",
-      "export": "FloatingSnackbar"
-    },
-    {
-      "key": "d2d63dc6c690ca00f34cd80519da22652f78c838",
-      "figma": "System Snackbar",
-      "nodeId": "667:66763",
-      "export": "SystemSnackbar"
-    },
-    {
-      "key": "097589b3cdf0f1c089251835a03b713981f58381",
-      "figma": "Language selector",
-      "nodeId": "624:51671",
-      "export": "LanguageSelector"
-    }
+    {"key": "003145f8c6c07826ebb34e61eb7d7128b5ca7ab7", "figma": "Button", "nodeId": "620:44746", "export": "Button"},
+    {"key": "a7a8ce3c6945acd43b19bea7bf3c3f8e2c482713", "figma": "Icon Button", "nodeId": "439:33618", "export": "IconButton"},
+    {"key": "c6b08afd1603c549b73e459ef4bb1fa532794764", "figma": "Timer Button", "nodeId": "597:37788", "export": "TimerButton"},
+    {"key": "077c34cd1e6d67fba292cf019992dcf1cc8519d0", "figma": "Text Input", "nodeId": "407:45428", "export": "TextInput"},
+    {"key": "0f7d6bd5fda0c6e7e4e4b0816291a68fa6bd4a4f", "figma": "Text Area Input", "nodeId": "429:13769", "export": "TextArea"},
+    {"key": "bb5c31a8bfc8b7e02a1971102428bc37fe4621e4", "figma": "Search Input", "nodeId": "587:23986", "export": "SearchInput"},
+    {"key": "19ff054d9ff9d9a9ff760a297dcc7ffc0cf17e7f", "figma": "Dropdown Input", "nodeId": "430:27546", "export": "DropdownInput"},
+    {"key": "17e03f9a4278b728d70fc4c8d94069b3d057d8b0", "figma": "OTP Input", "nodeId": "428:8570", "export": "OtpInput"},
+    {"key": "2bd2060b08c5f1d5bdf7d5997ca5665a001366a4", "figma": "Checkbox / Checkbox-base", "nodeId": "393:9220", "export": "Checkbox"},
+    {"key": "27074249cddea52c4d0b34d7df50a73ccab37d25", "figma": "Radio / Radio-base", "nodeId": "458:33839", "export": "Radio"},
+    {"key": "d2203600d2b2b945921c77507e94e1ab7e2a27dc", "figma": "Toggle / Toggle-base", "nodeId": "569:14389", "export": "Toggle"},
+    {"key": "bd66f67456b911883a1a8bbfd03696a35654e44f", "figma": "chips", "nodeId": "635:61987", "export": "Chip"},
+    {"key": "294bd6f8a827f82939eca80ce36b2d273e76e3c9", "figma": "Chips / Timer-chip", "nodeId": "688:13259", "export": "TimerChip"},
+    {"key": "12770430f961db46bc00422e86fd305474c68dac", "figma": "Tabs/Tab", "nodeId": "636:62099", "export": "SegmentedControl"},
+    {"key": "02fe64d0d684936a2b04a81e61f8cf09e2ab729d", "figma": "tabs/tab-base", "nodeId": "633:61530", "export": "SegmentedControlItem"},
+    {"key": "0022f49c9653112bd1d4193ab54269f46f0aeb28", "figma": "carousel-pointers", "nodeId": "818:16365", "export": "CarouselPointers"},
+    {"key": "9173c323a6a4429afef1c5f64f4a966591d4a0a5", "figma": "Bottom Nav / nav", "nodeId": "627:60078", "export": "useTabBarOptions", "note": "in a navigator: React Navigation tabs + useTabBarOptions; BottomNav only standalone"},
+    {"key": "628677de31b7b5c07bd940828a0eb24206cf3097", "figma": "nav-item-base", "nodeId": "627:59848", "export": "tabItem", "note": "standalone: BottomNavItem"},
+    {"key": "330739c06e7370c45ddfee6785c1082c4227b54a", "figma": "Avatar / avatar", "nodeId": "135:1081", "export": "Avatar"},
+    {"key": "f6166af66d6b350297ba60e971b0be04df75bc44", "figma": "Badge", "nodeId": "358:9733", "export": "Badge"},
+    {"key": "7daf30717db8ebc42e8bdd8b1d0659a6fe196e27", "figma": "Divider", "nodeId": "276:31823", "export": "Divider"},
+    {"key": "65ddb0dfafd210d339215adccd569e20e2c15680", "figma": "Tooltips", "nodeId": "295:32545", "export": "Tooltip"},
+    {"key": "3e2f6e18bfa4acda217f4fe3c877b6e33a365b24", "figma": "Floating-Snackbar", "nodeId": "534:12081", "export": "FloatingSnackbar"},
+    {"key": "d2d63dc6c690ca00f34cd80519da22652f78c838", "figma": "System Snackbar", "nodeId": "667:66763", "export": "SystemSnackbar"},
+    {"key": "097589b3cdf0f1c089251835a03b713981f58381", "figma": "Language selector", "nodeId": "624:51671", "export": "LanguageSelector"}
   ],
   "withLabelSets": [
-    {
-      "figma": "Checkbox / Checkbox-with-label",
-      "nodeId": "393:8916",
-      "export": "Checkbox",
-      "note": "pass label/helperText"
-    },
-    {
-      "figma": "Radio / Radio-with-label",
-      "nodeId": "456:30961",
-      "export": "Radio",
-      "note": "pass label/helperText"
-    },
-    {
-      "figma": "Toggle / Toggle-with-label",
-      "nodeId": "350:5505",
-      "export": "Toggle",
-      "note": "pass label/helperText"
-    }
+    {"figma": "Checkbox / Checkbox-with-label", "nodeId": "393:8916", "export": "Checkbox", "note": "pass label/helperText"},
+    {"figma": "Radio / Radio-with-label", "nodeId": "456:30961", "export": "Radio", "note": "pass label/helperText"},
+    {"figma": "Toggle / Toggle-with-label", "nodeId": "350:5505", "export": "Toggle", "note": "pass label/helperText"}
   ],
   "brandComponents": {
     "_comment": "Per brand: components that live in @lokal-app/kagaz-brand-<brand>/components (Kagaz ADR-0007), keyed by the brand's own design-system Figma file. An app reads ONLY its brand's entry; an instance from another brand's entry is a BLOCKER.",
@@ -1332,36 +1106,15 @@ Source: each Kagaz component's `figma.json` at the pinned release — shared com
       "import": "@lokal-app/kagaz-brand-gaming/components",
       "figmaFileKey": "vHX6yu564DbkTCKLgjGQFI",
       "components": [
-        {
-          "key": "055d0337e9b7a064128e102d4d22bb5d132c1fb4",
-          "figma": "Gm_Play-card",
-          "nodeId": "2040:6417",
-          "export": "PlayCard"
-        },
-        {
-          "key": "68e40c78d74b51fc8361ff0c448422a47fd5eb5a",
-          "figma": "_gm_pipe",
-          "nodeId": "2065:25867",
-          "export": "Pipe"
-        },
-        {
-          "key": "cb4a165e935c6d928c95b6244b2348dbbfb7369b",
-          "figma": "gm_Progress-bar",
-          "nodeId": "2012:1984",
-          "export": "ProgressBar"
-        },
-        {
-          "key": "8eda078bfd5bd36182b28aebd478cce6d4ecb1e5",
-          "figma": "_gm_progress-bar-base",
-          "nodeId": "2012:1953",
-          "export": "ProgressBar",
-          "note": "internal segment of ProgressBar"
-        }
+        {"key": "055d0337e9b7a064128e102d4d22bb5d132c1fb4", "figma": "Gm_Play-card", "nodeId": "2040:6417", "export": "PlayCard"},
+        {"key": "68e40c78d74b51fc8361ff0c448422a47fd5eb5a", "figma": "_gm_pipe", "nodeId": "2065:25867", "export": "Pipe"},
+        {"key": "cb4a165e935c6d928c95b6244b2348dbbfb7369b", "figma": "gm_Progress-bar", "nodeId": "2012:1984", "export": "ProgressBar"},
+        {"key": "8eda078bfd5bd36182b28aebd478cce6d4ecb1e5", "figma": "_gm_progress-bar-base", "nodeId": "2012:1953", "export": "ProgressBar", "note": "internal segment of ProgressBar"}
       ]
     },
-    "dostt": { "brandVersion": "1.0.0-next.2", "components": [] },
-    "eaze": { "brandVersion": "1.0.0-next.1", "components": [] },
-    "bhakti": { "brandVersion": "1.0.0-next.1", "components": [] }
+    "dostt": {"brandVersion": "1.0.0-next.2", "components": []},
+    "eaze": {"brandVersion": "1.0.0-next.1", "components": []},
+    "bhakti": {"brandVersion": "1.0.0-next.1", "components": []}
   }
 }
 ```
@@ -1374,16 +1127,10 @@ Source: each Kagaz component's `figma.json` at the pinned release — shared com
   "plansDirectory": "docs/plans",
   "permissions": {
     "allow": [
-      "Bash(pnpm lint:*)",
-      "Bash(pnpm lint)",
-      "Bash(pnpm type-check)",
-      "Bash(pnpm check-all)",
-      "Bash(pnpm kagaz:check)",
-      "Bash(pnpm test:*)",
-      "Bash(node scripts/kagaz-exports.mjs)",
-      "Bash(git status)",
-      "Bash(git diff:*)",
-      "Bash(git log:*)"
+      "Bash(pnpm lint:*)", "Bash(pnpm lint)", "Bash(pnpm type-check)",
+      "Bash(pnpm check-all)", "Bash(pnpm kagaz:check)", "Bash(pnpm test:*)",
+      "Bash(node scripts/kagaz-exports.mjs)", "Bash(git status)",
+      "Bash(git diff:*)", "Bash(git log:*)"
     ],
     "deny": [
       "Read(./.env*)",
@@ -1395,50 +1142,32 @@ Source: each Kagaz component's `figma.json` at the pinned release — shared com
   },
   "hooks": {
     "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "jq -n --rawfile r .claude/hooks/reminder.txt '{hookSpecificOutput: {hookEventName: \"UserPromptSubmit\", additionalContext: $r}}'"
-          }
-        ]
-      }
+      { "hooks": [ { "type": "command",
+          "command": "jq -n --rawfile r .claude/hooks/reminder.txt '{hookSpecificOutput: {hookEventName: \"UserPromptSubmit\", additionalContext: $r}}'" } ] }
     ],
     "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [{ "type": "command", "command": "bash .claude/hooks/guard-bash.sh" }]
-      },
-      {
-        "matcher": "Edit|Write|MultiEdit",
-        "hooks": [{ "type": "command", "command": "bash .claude/hooks/guard-edit.sh" }]
-      }
+      { "matcher": "Bash",
+        "hooks": [ { "type": "command", "command": "bash .claude/hooks/guard-bash.sh" } ] },
+      { "matcher": "Edit|Write|MultiEdit",
+        "hooks": [ { "type": "command", "command": "bash .claude/hooks/guard-edit.sh" } ] }
     ],
     "PostToolUse": [
-      {
-        "matcher": "Edit|Write|MultiEdit",
-        "hooks": [{ "type": "command", "command": "bash .claude/hooks/lint-changed.sh" }]
-      }
+      { "matcher": "Edit|Write|MultiEdit",
+        "hooks": [ { "type": "command", "command": "bash .claude/hooks/lint-changed.sh" } ] }
     ],
     "Stop": [
-      {
-        "hooks": [
-          { "type": "command", "command": "bash .claude/hooks/stop-type-check.sh", "timeout": 180 }
-        ]
-      }
+      { "hooks": [ { "type": "command", "command": "bash .claude/hooks/stop-type-check.sh", "timeout": 180 } ] }
     ]
   }
 }
 ```
 
 **`.claude/hooks/reminder.txt`** (injected every turn as `additionalContext` JSON — not plain stdout, which has known reliability issues on UserPromptSubmit — keeps the tree and the design system top-of-mind):
-
 ```
 RULES: utils=pure | lib=infra-only | features=4-of-4 | else spine. UI = Kagaz: step 0 = does @lokal-app/kagaz-components, then the app's @lokal-app/kagaz-brand-<brand>/components, ship it? → register in components/ui (pass-through) + import from @/components/ui + props, never @lokal-app/* outside ui/ & theme/, never rebuild/wrap/restyle; brand-unique component missing = Kagaz gap for the brand package, never app code (§A7.7). Token values: design-system/no-raw-style-values (token-police only if opted in). No inline styles — Kagaz props → VStack/HStack/Box/Text token props → createStyles(tokens)+useStyles. Tokens only via @/theme. shell = closed 6. react-query-kit + getKey(). Zustand selectors only. Named exports. t() strings incl. Kagaz labels. Scaffold via skills.
 ```
 
 **`.claude/hooks/guard-bash.sh`** — reads the tool-call JSON on stdin, exits **2** (blocks, stderr fed back to Claude) on destructive commands (any recursive `rm`, however the flags are spelled; hard reset; force push; `git clean -f`), on **any dependency change** (`pnpm add/remove/update`, `pnpm install <pkg>`, `expo install`, npm/yarn/bun installs) — "new dependency = ADR" (§A0) and "Kagaz version = `/kagaz-upgrade`" are enforced here, not by trust — and on **any attempt to patch Kagaz** (`pnpm patch`, `patch-package`, or shell writes into `node_modules/@lokal-app`). Plain `pnpm install` / `--frozen-lockfile` stays allowed. Approved installs are run by the user (`! pnpm add …`):
-
 ```bash
 #!/usr/bin/env bash
 cmd=$(jq -r '.tool_input.command // empty')
@@ -1461,8 +1190,7 @@ fi
 exit 0
 ```
 
-**`.claude/hooks/guard-edit.sh`** — PreToolUse on `Edit|Write|MultiEdit`: blocks (exit **2**) writes that would create a local design-system layer or modify Kagaz, _before_ they land. Allowed shapes are the §A7.2 theme shape and the §A7.5 closed shell list; Kagaz versions in `package.json` change only through the user's install in `/kagaz-upgrade`:
-
+**`.claude/hooks/guard-edit.sh`** — PreToolUse on `Edit|Write|MultiEdit`: blocks (exit **2**) writes that would create a local design-system layer or modify Kagaz, *before* they land. Allowed shapes are the §A7.2 theme shape and the §A7.5 closed shell list; Kagaz versions in `package.json` change only through the user's install in `/kagaz-upgrade`:
 ```bash
 #!/usr/bin/env bash
 input=$(cat)
@@ -1499,7 +1227,6 @@ exit 0
 ```
 
 **`.claude/hooks/lint-changed.sh`** — lints exactly the touched file and marks the turn as having edited `src/`. PostToolUse cannot undo the edit (it has already landed); exit **2** feeds the violations back to Claude as a must-fix:
-
 ```bash
 #!/usr/bin/env bash
 file=$(jq -r '.tool_input.file_path // empty')
@@ -1512,7 +1239,6 @@ exit 0
 ```
 
 **`.claude/hooks/stop-type-check.sh`** — the end-of-turn type gate:
-
 ```bash
 #!/usr/bin/env bash
 # Stop gate. Only exit 2 blocks a Stop, and only stderr reaches Claude.
@@ -1557,8 +1283,8 @@ Why it is shaped this way: Claude Code blocks a Stop **only on exit 2**, and onl
 }
 ```
 
-- **Figma**: remote Dev Mode MCP shown; teams using the desktop-app local server swap the URL for `http://127.0.0.1:3845/mcp`. Tool names are prefixed `mcp__figma__*` — only `figma-extractor` (and `/add-skin`) whitelist them. The same Figma account must be able to read the Kagaz Core Components file (`SiZy9MpCZuqzJs1yiU8vRh`) **and the app's brand design-system file** (e.g. Gaming `vHX6yu564DbkTCKLgjGQFI`) so instances resolve to their main components. _(Verify exact server URL/auth at setup; Figma has been iterating on this surface.)_
-- **Postman**: HTTP MCP with an API key from the team workspace; only `/api-from-collection` uses it. _(Same caveat — verify URL at setup.)_
+- **Figma**: remote Dev Mode MCP shown; teams using the desktop-app local server swap the URL for `http://127.0.0.1:3845/mcp`. Tool names are prefixed `mcp__figma__*` — only `figma-extractor` (and `/add-skin`) whitelist them. The same Figma account must be able to read the Kagaz Core Components file (`SiZy9MpCZuqzJs1yiU8vRh`) **and the app's brand design-system file** (e.g. Gaming `vHX6yu564DbkTCKLgjGQFI`) so instances resolve to their main components. *(Verify exact server URL/auth at setup; Figma has been iterating on this surface.)*
+- **Postman**: HTTP MCP with an API key from the team workspace; only `/api-from-collection` uses it. *(Same caveat — verify URL at setup.)*
 - **No Kagaz MCP is needed:** the design-system API is the installed package (typed, JSDoc'd, version-pinned) plus `component-map.json`; Storybook (`https://kagaz-storybook.internal.getlokalapp.com/`) is the human reference.
 - Scoping rule: downstream agents consume structured JSON (`design-package.json`, `kagaz-resolution.json`, generated `types.ts` wire schemas) — they never get MCP access. Swapping design/API tools touches stage 1 only.
 
@@ -1600,7 +1326,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
-      - uses: anthropics/claude-code-action@v1 # verify latest major at setup
+      - uses: anthropics/claude-code-action@v1   # verify latest major at setup
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: >
@@ -1613,15 +1339,15 @@ jobs:
 
 ## B11. Memory strategy (what lives where, so any session is instantly up to speed)
 
-| Memory             | Mechanism                                                                                                                                        | Content                                                                                                                         |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| Constitution       | Root `CLAUDE.md` (always loaded)                                                                                                                 | The rules digest (B2)                                                                                                           |
-| Layer rules        | Scoped `CLAUDE.md` (on-demand) + `.claude/rules/` (path-glob)                                                                                    | Folder-specific law                                                                                                             |
-| Design-system API  | Installed Kagaz (`node_modules/@lokal-app/kagaz-components/src/**/*.types.ts`), `docs/ARCHITECTURE.md` §A7.6, `.claude/figma/component-map.json` | What exists and how its props map to Figma — version-pinned, refreshed only by `/kagaz-upgrade`                                 |
-| Design-system debt | `docs/kagaz-gaps.md`                                                                                                                             | Every open Kagaz gap: issue URL, temporary composition, owner                                                                   |
-| Decisions          | `docs/adr/NNNN-*.md`                                                                                                                             | Every deviation/extension, permanent                                                                                            |
-| Plans              | `docs/plans/<feature>.md` (`plansDirectory`)                                                                                                     | Per-feature implementation plans from /implement-feature — the cross-session handoff document                                   |
-| Agent experience   | `memory: project` on architecture-guard, ui-implementer, screen-builder, pr-reviewer                                                             | Project-specific learnings (recurring violations, this app's areas/resources, Kagaz usage patterns) accumulated across sessions |
-| Personal scratch   | `CLAUDE.local.md`, `settings.local.json` (gitignored)                                                                                            | Sandbox URLs, per-dev tweaks — never rules                                                                                      |
+| Memory | Mechanism | Content |
+|---|---|---|
+| Constitution | Root `CLAUDE.md` (always loaded) | The rules digest (B2) |
+| Layer rules | Scoped `CLAUDE.md` (on-demand) + `.claude/rules/` (path-glob) | Folder-specific law |
+| Design-system API | Installed Kagaz (`node_modules/@lokal-app/kagaz-components/src/**/*.types.ts`), `docs/ARCHITECTURE.md` §A7.6, `.claude/figma/component-map.json` | What exists and how its props map to Figma — version-pinned, refreshed only by `/kagaz-upgrade` |
+| Design-system debt | `docs/kagaz-gaps.md` | Every open Kagaz gap: issue URL, temporary composition, owner |
+| Decisions | `docs/adr/NNNN-*.md` | Every deviation/extension, permanent |
+| Plans | `docs/plans/<feature>.md` (`plansDirectory`) | Per-feature implementation plans from /implement-feature — the cross-session handoff document |
+| Agent experience | `memory: project` on architecture-guard, ui-implementer, screen-builder, pr-reviewer | Project-specific learnings (recurring violations, this app's areas/resources, Kagaz usage patterns) accumulated across sessions |
+| Personal scratch | `CLAUDE.local.md`, `settings.local.json` (gitignored) | Sandbox URLs, per-dev tweaks — never rules |
 
 Rule of placement: **rules** → CLAUDE.md/rules; **decisions** → ADRs; **design-system debt** → kagaz-gaps; **work-in-flight** → plans; **observations** → agent memory. Nothing important lives only in a chat transcript.
