@@ -3,9 +3,17 @@ on:
   pull_request:
   push:
     branches: [main]
+permissions:
+  contents: read
+  packages: read # lets the built-in token read @lokal-app packages the repo has been granted
 jobs:
   quality:
     runs-on: ubuntu-latest
+    env:
+      # Kagaz is on GitHub Packages (.npmrc reads this). Prefer an org/repo secret holding a classic
+      # token with read:packages; the built-in token works only if each Kagaz package grants this
+      # repo read access (package settings → Manage Actions access).
+      GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_PACKAGES_TOKEN || github.token }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -13,4 +21,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-      - run: pnpm install --frozen-lockfile && pnpm lint --max-warnings=0 && pnpm type-check
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint --max-warnings=0
+      - run: pnpm type-check
+      - run: pnpm kagaz:check
