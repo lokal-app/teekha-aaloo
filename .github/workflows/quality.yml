@@ -10,10 +10,10 @@ jobs:
   quality:
     runs-on: ubuntu-latest
     env:
-      # Kagaz is on GitHub Packages (.npmrc reads this). Prefer an org/repo secret holding a classic
-      # token with read:packages; the built-in token works only if each Kagaz package grants this
+      # Kagaz is on GitHub Packages (.npmrc reads this env var). Prefer the KAGAZ_PACKAGES_TOKEN
+      # org/repo secret (a classic token with read:packages); the built-in token works only if each Kagaz package grants this
       # repo read access (package settings → Manage Actions access).
-      GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_PACKAGES_TOKEN || github.token }}
+      GITHUB_PACKAGES_TOKEN: ${{ secrets.KAGAZ_PACKAGES_TOKEN || github.token }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

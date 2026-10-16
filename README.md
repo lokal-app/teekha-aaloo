@@ -28,8 +28,9 @@ pnpm start                   # metro for an installed dev client
 Environments: `APP_ENV=development|staging|production`, values in `.env.<APP_ENV>`,
 validated by `env.ts` (zod). Scripts: `start[:staging|:production]`, `prebuild[…]`,
 `android[…]`, `ios[…]`, `build:<env>:<platform>` (EAS), `publish:appdist:…`.
-EAS builds and CI need `GITHUB_PACKAGES_TOKEN` as a secret (a **classic** token with
-`read:packages` — fine-grained tokens don't work with the npm registry).
+CI needs a `KAGAZ_PACKAGES_TOKEN` repo/org secret and EAS builds a `GITHUB_PACKAGES_TOKEN` EAS secret —
+both a **classic** token with `read:packages` (fine-grained tokens don't work with the npm registry;
+GitHub secret names can't start with `GITHUB_`, hence the different CI name).
 
 ## Design system — Kagaz
 

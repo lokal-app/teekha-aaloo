@@ -22,7 +22,7 @@ jobs:
     env:
       # Kagaz install from GitHub Packages (see quality.yml). The EAS build server needs the same
       # value as an EAS secret/env var named GITHUB_PACKAGES_TOKEN.
-      GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_PACKAGES_TOKEN || github.token }}
+      GITHUB_PACKAGES_TOKEN: ${{ secrets.KAGAZ_PACKAGES_TOKEN || github.token }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
