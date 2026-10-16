@@ -12,7 +12,7 @@ Everything in this part ships inline in the template repo's `.claude/` — the c
 | 4. Hard gates | Hooks (`.claude/settings.json` + `.claude/hooks/*`) | Block violations with exit codes — no reasoning involved |
 | 5. External knowledge | MCP servers (`.mcp.json`): Figma, Postman. Design-system truth: the installed Kagaz package (`node_modules/@lokal-app/kagaz-components/src/**/*.types.ts` JSDoc) + `.claude/figma/component-map.json` | Design, API-contract and component-API truth on tap |
 | 6. Distribution *(optional — TODO, see B9)* | Org plugin + marketplace | One versioned harness for every app — only if cross-app drift becomes a real problem |
-| 7. CI backstop | GitHub Action PR review | Enforcement even when code wasn't written in Claude Code |
+| 7. CI backstop | GitHub Actions `quality.yml` (lint + type-check + `kagaz:check`) | Deterministic enforcement even when code wasn't written in Claude Code (no AI review in CI — B10) |
 
 Determinism comes from the **gates between steps** (lint, type-check, `kagaz:check`, schema validation — exit codes, not reasoning), never from longer prompts. The mega-agent anti-pattern (all rules in one giant description) remains rejected.
 
@@ -44,8 +44,7 @@ rn-template/
 │   │   └── validate.mjs               schema gate
 │   └── state/                         (gitignored) pipeline scratch space
 ├── .github/workflows/
-│   ├── quality.yml                    lint + type-check + kagaz:check on every PR
-│   └── claude-review.yml              Claude PR review (B10)
+│   └── quality.yml                    lint + type-check + kagaz:check on every PR
 └── src/**/CLAUDE.md                   scoped rules (B4)
 ```
 
@@ -1308,34 +1307,43 @@ github.com/<org>/claude-plugins        (private repo = the marketplace)
 - **Versioning policy (if adopted):** plugin changes ship by semver; apps pin via the marketplace; a harness change is a plugin PR — never an in-app fork of a skill.
 - **Until then:** the template repo's inline `.claude/` is the single source of truth; harness improvements land in the template repo and are ported to live apps manually (or by re-running the relevant Part D phase against the app).
 
-## B10. CI PR review (`.github/workflows/`)
+## B10. CI gates (`.github/workflows/`)
 
-**`quality.yml`** — the dumb gates, every PR: `pnpm install --frozen-lockfile && pnpm lint --max-warnings=0 && pnpm type-check && pnpm kagaz:check`. The install step needs registry access to `@lokal-app` on GitHub Packages: the job sets `GITHUB_PACKAGES_TOKEN` from the repo secret (a token with `read:packages`; the org's `GITHUB_TOKEN` works only if the Kagaz packages grant this repo access) — the same secret EAS builds use.
-
-**`claude-review.yml`** — the constitution review even when the code wasn't written in Claude Code:
+**`quality.yml`** — the dumb gates, every PR (ships verbatim):
 
 ```yaml
-name: claude-review
+name: quality
 on:
   pull_request:
-    types: [opened, synchronize]
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  packages: read # lets the built-in token read @lokal-app packages the repo has been granted
 jobs:
-  review:
+  quality:
     runs-on: ubuntu-latest
-    permissions: { contents: read, pull-requests: write, id-token: write }
+    env:
+      # Kagaz is on GitHub Packages (.npmrc reads this env var). Prefer the KAGAZ_PACKAGES_TOKEN
+      # org/repo secret (a classic token with read:packages); the built-in token works only if each Kagaz package grants this
+      # repo read access (package settings → Manage Actions access).
+      GITHUB_PACKAGES_TOKEN: ${{ secrets.KAGAZ_PACKAGES_TOKEN || github.token }}
     steps:
       - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: anthropics/claude-code-action@v1   # verify latest major at setup
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: >
-            Act as the pr-reviewer agent defined in .claude/agents/pr-reviewer.md.
-            Review this PR's diff against the constitution in CLAUDE.md and the scoped
-            CLAUDE.md files. Post findings as inline review comments in the
-            `path:line — [RULE] problem → fix` format; finish with APPROVE or
-            REQUEST CHANGES and the blocker list.
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint --max-warnings=0
+      - run: pnpm type-check
+      - run: pnpm kagaz:check
 ```
+
+Without registry access the install fails with `ERR_PNPM_FETCH_401` on a `@lokal-app` package — set the `KAGAZ_PACKAGES_TOKEN` secret (GitHub forbids secret names starting with `GITHUB_`, so the secret is named differently from the env var it fills; org-level is simplest: one bot token for every app repo; the same secret EAS builds use) or grant the repo Actions access on each Kagaz package.
+
+**No AI review in CI (decision).** The constitution review runs **locally**: the `pr-reviewer` agent in each developer's Claude Code session (the final gate of every skill pipeline, B5), at no extra cost. A CI Claude review (`anthropics/claude-code-action`) is **not shipped**: it needs its own billed credential (`ANTHROPIC_API_KEY`, pay-per-use) that a personal Claude subscription must not stand in for. Adding it later requires org approval of that cost and an ADR.
 
 ## B11. Memory strategy (what lives where, so any session is instantly up to speed)
 
