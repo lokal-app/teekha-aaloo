@@ -1,14 +1,18 @@
-# theme/ — bottom of the stack
-Imports NOTHING from src/. Two layers: tokens/ (scheme-agnostic primitives — INTERNAL to
-theme/, nothing outside src/theme/ may import them) and themes/ (skins — the only place
-scheme-ness exists). Raw hex lives only in tokens/palette.ts (names mirror Figma variables,
-append-only). Semantic color keys, spacing keys, typography variants, radius and shadow
-keys are FIXED by the constitution — extending a key set requires an ADR.
-themes/default.ts is the complete base spec and MUST define every semantic key for BOTH
-light and dark. Custom skins = createTheme(defaultTheme, overrides) in themes/<name>.ts +
-one registry.ts line — nothing else changes, no component is touched. Overrides may touch
-any token group; single-scheme skins assign one map to both schemes explicitly; override
-color values must reference palette, never hardcode hex.
-Values come from Figma via /figma-implement stage 2 (token-reconciler) — never invented.
-Active theme = registry[themeName] × colorScheme, resolved in ThemeProvider from
-stores/settings (themeName may be remote-config driven).
+# theme/ — this app's binding to Kagaz (the ONLY folder that touches tokens/brand packages)
+
+Shape (locked): brand.ts (the ONE brand import) • overrides.ts (createTheme overrides, ships {}) •
+skins/<name>.ts (optional named overrides) • mergeOverrides.ts • registry.ts (themes built ONCE
+at module scope: createTheme(brand, overrides[⊕skin]) + ThemeName + DEFAULT_THEME) •
+navigationTheme.ts (adaptNavigationTheme per theme) • useStyles.ts • index.ts. Nothing else —
+no tokens/, no palette, no local token objects. Imports nothing from src/.
+index.ts exports exactly: useTokens, useTheme, useStyles, Tokens, Mode, themes, ThemeName,
+DEFAULT_THEME, navigationThemes, brand, ThemeProvider (providers/ only). Never re-export Kagaz
+components — that is components/ui's job.
+Overrides: prefer `brand` level (follows in both modes) → `tokens.{light,dark}` → `components`
+(card, button, iconButton, chip, languageSelector, coinChip, tag, snackbar, bottomNav — layered
+over the brand's own components(tokens); createTheme rejects bad paths/types).
+Raw hex is legal ONLY in overrides.ts/skins/*, each value citing its Figma node + design
+sign-off. An override more than one app needs = a Kagaz change, not an override.
+New skin = skins/<name>.ts + one registry.ts line (/add-skin) — no component changes.
+Brand ↔ app.config.ts plugin ↔ package.json must agree (pnpm kagaz:check). Kagaz version
+changes only through /kagaz-upgrade.

@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
-    "@expo/vector-icons": "^15.1.1",
     "@gorhom/bottom-sheet": "^5.2.14",
     "@hookform/resolvers": "^5.9.1",
+    "@lokal-app/kagaz-brand-gaming": "1.0.0-next.1",
+    "@lokal-app/kagaz-components": "1.0.0-next.2",
     "@react-navigation/bottom-tabs": "^7.19.2",
     "@react-navigation/native": "^7.4.1",
     "@react-navigation/native-stack": "^7.19.2",
@@ -35,6 +36,7 @@
     "react-native-reanimated": "4.5.1",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.2",
+    "react-native-svg": "15.15.4",
     "react-native-worklets": "0.10.1",
     "react-query-kit": "^3.3.4",
     "zod": "^4.6.5",
@@ -88,9 +90,11 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "type-check": "tsc --noEmit",
-    "check-all": "pnpm lint && pnpm type-check",
+    "check-all": "pnpm lint && pnpm type-check && pnpm kagaz:check",
     "doctor": "npx expo-doctor",
-    "prepare": "husky"
+    "prepare": "husky",
+    "kagaz:check": "node scripts/kagaz-check.mjs",
+    "kagaz:exports": "node scripts/kagaz-exports.mjs"
   },
   "private": true,
   "packageManager": "pnpm@10.15.1",

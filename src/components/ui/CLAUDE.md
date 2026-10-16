@@ -1,16 +1,14 @@
-# components/ui/ — the design system
-The ONLY place raw building blocks (RN built-ins + locked-stack libs) get wrapped and
-token-bound. Atomic: no business logic, no API calls, no store reads, no navigation, no t()
-EVER (text arrives via props). Contract per primitive: named export + <Name>Props exported;
-variant/size as the standardized prop names, token-derived unions; SEMANTIC tokens only —
-theme/tokens/* is theme-internal (palette legal only inside theme/themes/*); a11y defaults built in
-(accessibilityRole/State, 44pt targets); style?: StyleProp<ViewStyle> merged last =
-LAYOUT-ONLY (placement; any visual property in it is a violation — that's variants' job);
-may compose sibling primitives, imports only theme/ + utils/ (NEVER theme/tokens/* —
-theme-internal); createStyles tail in-file; flat <Name>.tsx until a 2nd file is needed,
-then <Name>/ folder.
-No Spacer/Box/Row primitives — sibling spacing via gap in createStyles.
-Wrapping a NEW third-party UI kit = ADR. Text rendering exists ONLY here (Typography).
-New primitive = /create-component + register in this folder's index.ts (the one curated
-barrel). Toast: showToast() lives in lib/toast (imperative, renders nothing); ToastMessage.tsx renders here and
-is mounted as the host in providers/index.tsx.
+# components/ui/ — the Kagaz gateway (the ONLY place Kagaz components enter the app)
+
+Shape (locked): kagaz.ts (shared re-exports) • brand.ts (this brand's /components /icons
+/geometry; `export {};` if none) • navigation.ts (useTabBarOptions, tabItem) • index.ts
+(export * from kagaz + navigation, + brand once it has a re-export) • adapters/<Name>.tsx (ONLY via /kagaz-upgrade) • CLAUDE.md.
+Rules: only `export { A, type AProps, … } from '@lokal-app/kagaz-…'` statements — explicit
+names, never `export *` from a Kagaz package, never an alias, no JSX, no styles, no defaults,
+no HOCs. Names stay exactly Kagaz's (docs, JSDoc, component map and lint rules depend on it).
+First use of a Kagaz export anywhere = add it here in the same PR (skills do this in step 0).
+Adapters exist only to absorb a Kagaz API change: same name, maps the app-facing props onto
+the new Kagaz API, first line `// KAGAZ-ADAPTER(<kagaz-version>): <what changed>`, a row in
+docs/kagaz-gaps.md "Adapters"; deleted when call sites migrate. Never change looks here —
+visual needs go through props, the theme, or the Kagaz gap protocol (§A7.7).
+Imports: Kagaz packages only (+ @/theme inside adapters). Nothing else from src/.

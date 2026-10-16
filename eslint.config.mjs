@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+
 // Constitution §A12 — ESLint as architecture enforcement. Changing any rule here = ADR.
 import { defineConfig, globalIgnores } from 'eslint/config';
 import expoConfig from 'eslint-config-expo/flat.js';
@@ -8,10 +10,26 @@ import reactCompiler from 'eslint-plugin-react-compiler';
 import reactNative from 'eslint-plugin-react-native';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 
+// §A12 token-value lint — two tiers, exactly one active. Default: design-system/no-raw-style-values.
+// Opt-in: Kagaz's own token-police, ONLY after the developer runs /enable-token-police.
+const USE_TOKEN_POLICE = false; // true only after /enable-token-police
+const tokenPolice = USE_TOKEN_POLICE
+  ? (await import('@lokal-app/kagaz-token-police/eslint-plugin')).default
+  : null;
+
+// Brand-only exports (generated) — the shell must stay brand-neutral (§A7.5).
+const kagazExports = JSON.parse(
+  fs.readFileSync(
+    new URL('./eslint-plugin-design-system/kagaz-exports.json', import.meta.url),
+    'utf8',
+  ),
+);
+const BRAND_ONLY = Object.values(kagazExports.brandSubpaths ?? {}).flat();
+
 const TS_FILES = ['**/*.ts', '**/*.tsx'];
 const SRC_FILES = ['src/**/*.ts', 'src/**/*.tsx'];
 
-function restrictedImports({ allowAxios = false, inFeature = false } = {}) {
+function restrictedImports({ allowAxios = false, inFeature = false, kagazGateway = false } = {}) {
   return [
     'error',
     {
@@ -33,7 +51,42 @@ function restrictedImports({ allowAxios = false, inFeature = false } = {}) {
         {
           name: 'react-native',
           importNames: ['SafeAreaView'],
-          message: 'Use the ui <Screen> primitive / react-native-safe-area-context (§A0).',
+          message: 'Use the shell <Screen> / react-native-safe-area-context (§A0).',
+        },
+        {
+          name: 'react-native',
+          importNames: ['Text'],
+          message: 'Text renders only via Kagaz <Text variant color> from @/components/ui (§A7.3).',
+        },
+        {
+          name: 'react-native',
+          importNames: [
+            'Pressable',
+            'TouchableOpacity',
+            'TouchableHighlight',
+            'TouchableWithoutFeedback',
+          ],
+          message: 'Use a Kagaz button or Kagaz Pressable from @/components/ui (§A7.3).',
+        },
+        {
+          name: '@expo/vector-icons',
+          message: 'Icons come from Kagaz, the brand /icons, or components/icons (§A7.6).',
+        },
+        {
+          name: 'expo-font',
+          message:
+            'Brand fonts are embedded at build time by the brand plugin — no runtime font loading (§A7.6).',
+        },
+        ...['react-native-paper', 'tamagui', 'nativewind', 'native-base', 'styled-components'].map(
+          (name) => ({
+            name,
+            message: 'Kagaz is the only design system (§A0).',
+          }),
+        ),
+        {
+          name: '@/theme',
+          importNames: ['ThemeProvider'],
+          message: 'ThemeProvider is rendered only in src/providers/index.tsx (§A13).',
         },
         {
           name: 'react-native',
@@ -45,6 +98,15 @@ function restrictedImports({ allowAxios = false, inFeature = false } = {}) {
           importNames: ['Animated', 'PanResponder'],
           message: 'Use react-native-reanimated / react-native-gesture-handler for new code (§A0).',
         },
+        ...(kagazGateway
+          ? [
+              {
+                name: '@lokal-app/kagaz-components',
+                importNames: ['PressableSurface', 'shadowFor', 'blendOver'],
+                message: 'Kagaz internals are not public (§A12).',
+              },
+            ]
+          : []),
         {
           name: '@react-native-community/netinfo',
           message: 'Connectivity is bound once via expo-network in lib/api-client (§A0).',
@@ -55,6 +117,20 @@ function restrictedImports({ allowAxios = false, inFeature = false } = {}) {
           group: ['@react-native-async-storage/*'],
           message: 'AsyncStorage is forbidden — use storage (MMKV) from @/lib/storage (§A0).',
         },
+        ...(kagazGateway
+          ? [
+              {
+                group: ['@lokal-app/kagaz-*/src/*', '@lokal-app/kagaz-*/lib/*'],
+                message: 'Kagaz entry points only — no deep paths (§A10 #12).',
+              },
+            ]
+          : [
+              {
+                group: ['@lokal-app/kagaz-*'],
+                message:
+                  'Import Kagaz from @/components/ui (components) or @/theme (theme) — the gateways (§A7.8).',
+              },
+            ]),
         inFeature
           ? {
               group: ['@/features/*'],
@@ -97,8 +173,15 @@ const layerZones = [
   {
     target: './src/components/ui',
     from: './src',
-    except: ['./components/ui', './theme', './utils'],
-    message: 'components/ui imports only theme/ + utils/ + sibling primitives (§A3/§A7.1).',
+    except: ['./components/ui', './theme'],
+    message:
+      'components/ui (the Kagaz gateway) imports only Kagaz packages (+ @/theme in adapters) (§A7.8).',
+  },
+  {
+    target: './src/components/shell',
+    from: './src',
+    except: ['./components/shell', './components/ui', './theme', './utils'],
+    message: 'components/shell imports only theme/, utils/ and components/ui (§A3/§A7.5).',
   },
   {
     target: './src/components',
@@ -112,8 +195,8 @@ const layerZones = [
   },
   {
     target: './src/stores',
-    from: ['./src/screens', './src/components', './src/api'],
-    message: 'stores/ never imports screens/, components/ or api/ (§A3).',
+    from: ['./src/screens', './src/components', './src/api', './src/theme'],
+    message: 'stores/ never imports screens/, components/, api/ or theme/ (§A3).',
   },
   {
     target: './src/api',
@@ -195,7 +278,17 @@ export default defineConfig([
               'message',
               'description',
               'helperText',
-              'error',
+              'supportingText',
+              'errorText',
+              'retryLabel',
+              'actionLabel',
+              'dismissLabel',
+              'clearAccessibilityLabel',
+              'closeAccessibilityLabel',
+              'prefixAccessibilityLabel',
+              'addCoinsLabel',
+              'lockedLabel',
+              'text',
             ],
           },
         },
@@ -209,16 +302,7 @@ export default defineConfig([
         },
       ],
       'import/no-restricted-paths': ['error', { zones: layerZones }],
-      'design-system/no-raw-colors': ['error', { paletteFile: 'src/theme/tokens/palette.ts' }],
-      'design-system/spacing-scale-only': ['error', { spacingFile: 'src/theme/tokens/spacing.ts' }],
-      'design-system/typography-component-only': [
-        'error',
-        { allowTextImport: ['src/components/ui/Typography.tsx'] },
-      ],
-      'design-system/styles-pattern': 'error',
-      'design-system/tokens-only': 'error',
-      'design-system/no-tokens-outside-theme': 'error',
-      'design-system/no-layer-root-barrels': 'error',
+      ...designSystem.configs.recommended.rules,
     },
   },
 
@@ -252,6 +336,79 @@ export default defineConfig([
   },
 
   {
+    files: ['src/components/ui/**/*.{ts,tsx}', 'src/theme/**/*.{ts,tsx}'],
+    rules: { 'no-restricted-imports': restrictedImports({ kagazGateway: true }) },
+  },
+  {
+    files: ['src/providers/**/*.tsx'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: restrictedImports()[1].paths.filter((p) => p.name !== '@/theme'),
+          patterns: restrictedImports()[1].patterns,
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/navigation/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            ...restrictedImports()[1].paths,
+            {
+              name: '@/components/ui',
+              importNames: ['BottomNav', 'BottomNavItem'],
+              message:
+                'Tabs use React Navigation + useTabBarOptions/tabItem, never BottomNav (§A8).',
+            },
+          ],
+          patterns: restrictedImports()[1].patterns,
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/components/shell/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            ...restrictedImports()[1].paths,
+            ...(BRAND_ONLY.length
+              ? [
+                  {
+                    name: '@/components/ui',
+                    importNames: BRAND_ONLY,
+                    message: 'The shell is brand-neutral — no brand-only components (§A7.5).',
+                  },
+                ]
+              : []),
+          ],
+          patterns: restrictedImports()[1].patterns,
+        },
+      ],
+    },
+  },
+  ...(tokenPolice
+    ? [
+        {
+          files: SRC_FILES,
+          ignores: ['src/theme/overrides.ts', 'src/theme/skins/**'],
+          plugins: { 'token-police': tokenPolice },
+          rules: {
+            'token-police/no-hardcoded-style-value': 'error',
+            'token-police/no-forbidden-token-import': 'error',
+            'design-system/no-raw-style-values': 'off',
+          },
+        },
+      ]
+    : []),
+  {
     files: ['src/lib/api-client/**/*.ts'],
     rules: { 'no-restricted-imports': restrictedImports({ allowAxios: true }) },
   },
@@ -262,6 +419,12 @@ export default defineConfig([
   { files: ['src/api/**/*.ts'], rules: { 'no-restricted-syntax': 'off' } },
   // lib/logger IS the sanctioned console sink that every other file must use (§A10 #3).
   { files: ['src/lib/logger/**/*.ts'], rules: { 'no-console': 'off' } },
+
+  // token-police is opt-in: its import is only resolved when USE_TOKEN_POLICE is true (§A12).
+  {
+    files: ['eslint.config.mjs'],
+    rules: { 'import/no-unresolved': ['error', { ignore: ['^@lokal-app/kagaz-token-police'] }] },
+  },
 
   // Config files that require a default export (§A10 #1).
   {

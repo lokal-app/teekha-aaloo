@@ -1,11 +1,216 @@
 {
-  "$comment": "TEMPLATE — fill per app. Figma component (set) name → components/ui primitive + variant/size mapping.",
-  "_template": true,
-  "components": {
-    "<Figma Component/Button>": {
-      "primitive": "Button",
-      "variants": { "<Figma variant value>": "primary" },
-      "sizes": { "<Figma size value>": "md" }
+  "kagazVersion": "1.0.0-next.2",
+  "figmaFileKey": "SiZy9MpCZuqzJs1yiU8vRh",
+  "components": [
+    {
+      "key": "003145f8c6c07826ebb34e61eb7d7128b5ca7ab7",
+      "figma": "Button",
+      "nodeId": "620:44746",
+      "export": "Button"
+    },
+    {
+      "key": "a7a8ce3c6945acd43b19bea7bf3c3f8e2c482713",
+      "figma": "Icon Button",
+      "nodeId": "439:33618",
+      "export": "IconButton"
+    },
+    {
+      "key": "c6b08afd1603c549b73e459ef4bb1fa532794764",
+      "figma": "Timer Button",
+      "nodeId": "597:37788",
+      "export": "TimerButton"
+    },
+    {
+      "key": "077c34cd1e6d67fba292cf019992dcf1cc8519d0",
+      "figma": "Text Input",
+      "nodeId": "407:45428",
+      "export": "TextInput"
+    },
+    {
+      "key": "0f7d6bd5fda0c6e7e4e4b0816291a68fa6bd4a4f",
+      "figma": "Text Area Input",
+      "nodeId": "429:13769",
+      "export": "TextArea"
+    },
+    {
+      "key": "bb5c31a8bfc8b7e02a1971102428bc37fe4621e4",
+      "figma": "Search Input",
+      "nodeId": "587:23986",
+      "export": "SearchInput"
+    },
+    {
+      "key": "19ff054d9ff9d9a9ff760a297dcc7ffc0cf17e7f",
+      "figma": "Dropdown Input",
+      "nodeId": "430:27546",
+      "export": "DropdownInput"
+    },
+    {
+      "key": "17e03f9a4278b728d70fc4c8d94069b3d057d8b0",
+      "figma": "OTP Input",
+      "nodeId": "428:8570",
+      "export": "OtpInput"
+    },
+    {
+      "key": "2bd2060b08c5f1d5bdf7d5997ca5665a001366a4",
+      "figma": "Checkbox / Checkbox-base",
+      "nodeId": "393:9220",
+      "export": "Checkbox"
+    },
+    {
+      "key": "27074249cddea52c4d0b34d7df50a73ccab37d25",
+      "figma": "Radio / Radio-base",
+      "nodeId": "458:33839",
+      "export": "Radio"
+    },
+    {
+      "key": "d2203600d2b2b945921c77507e94e1ab7e2a27dc",
+      "figma": "Toggle / Toggle-base",
+      "nodeId": "569:14389",
+      "export": "Toggle"
+    },
+    {
+      "key": "bd66f67456b911883a1a8bbfd03696a35654e44f",
+      "figma": "chips",
+      "nodeId": "635:61987",
+      "export": "Chip"
+    },
+    {
+      "key": "294bd6f8a827f82939eca80ce36b2d273e76e3c9",
+      "figma": "Chips / Timer-chip",
+      "nodeId": "688:13259",
+      "export": "TimerChip"
+    },
+    {
+      "key": "12770430f961db46bc00422e86fd305474c68dac",
+      "figma": "Tabs/Tab",
+      "nodeId": "636:62099",
+      "export": "SegmentedControl"
+    },
+    {
+      "key": "02fe64d0d684936a2b04a81e61f8cf09e2ab729d",
+      "figma": "tabs/tab-base",
+      "nodeId": "633:61530",
+      "export": "SegmentedControlItem"
+    },
+    {
+      "key": "0022f49c9653112bd1d4193ab54269f46f0aeb28",
+      "figma": "carousel-pointers",
+      "nodeId": "818:16365",
+      "export": "CarouselPointers"
+    },
+    {
+      "key": "9173c323a6a4429afef1c5f64f4a966591d4a0a5",
+      "figma": "Bottom Nav / nav",
+      "nodeId": "627:60078",
+      "export": "useTabBarOptions",
+      "note": "in a navigator: React Navigation tabs + useTabBarOptions; BottomNav only standalone"
+    },
+    {
+      "key": "628677de31b7b5c07bd940828a0eb24206cf3097",
+      "figma": "nav-item-base",
+      "nodeId": "627:59848",
+      "export": "tabItem",
+      "note": "standalone: BottomNavItem"
+    },
+    {
+      "key": "330739c06e7370c45ddfee6785c1082c4227b54a",
+      "figma": "Avatar / avatar",
+      "nodeId": "135:1081",
+      "export": "Avatar"
+    },
+    {
+      "key": "f6166af66d6b350297ba60e971b0be04df75bc44",
+      "figma": "Badge",
+      "nodeId": "358:9733",
+      "export": "Badge"
+    },
+    {
+      "key": "7daf30717db8ebc42e8bdd8b1d0659a6fe196e27",
+      "figma": "Divider",
+      "nodeId": "276:31823",
+      "export": "Divider"
+    },
+    {
+      "key": "65ddb0dfafd210d339215adccd569e20e2c15680",
+      "figma": "Tooltips",
+      "nodeId": "295:32545",
+      "export": "Tooltip"
+    },
+    {
+      "key": "3e2f6e18bfa4acda217f4fe3c877b6e33a365b24",
+      "figma": "Floating-Snackbar",
+      "nodeId": "534:12081",
+      "export": "FloatingSnackbar"
+    },
+    {
+      "key": "d2d63dc6c690ca00f34cd80519da22652f78c838",
+      "figma": "System Snackbar",
+      "nodeId": "667:66763",
+      "export": "SystemSnackbar"
+    },
+    {
+      "key": "097589b3cdf0f1c089251835a03b713981f58381",
+      "figma": "Language selector",
+      "nodeId": "624:51671",
+      "export": "LanguageSelector"
     }
+  ],
+  "withLabelSets": [
+    {
+      "figma": "Checkbox / Checkbox-with-label",
+      "nodeId": "393:8916",
+      "export": "Checkbox",
+      "note": "pass label/helperText"
+    },
+    {
+      "figma": "Radio / Radio-with-label",
+      "nodeId": "456:30961",
+      "export": "Radio",
+      "note": "pass label/helperText"
+    },
+    {
+      "figma": "Toggle / Toggle-with-label",
+      "nodeId": "350:5505",
+      "export": "Toggle",
+      "note": "pass label/helperText"
+    }
+  ],
+  "brandComponents": {
+    "_comment": "Per brand: components that live in @lokal-app/kagaz-brand-<brand>/components (Kagaz ADR-0007), keyed by the brand's own design-system Figma file. An app reads ONLY its brand's entry; an instance from another brand's entry is a BLOCKER.",
+    "gaming": {
+      "brandVersion": "1.0.0-next.1",
+      "import": "@lokal-app/kagaz-brand-gaming/components",
+      "figmaFileKey": "vHX6yu564DbkTCKLgjGQFI",
+      "components": [
+        {
+          "key": "055d0337e9b7a064128e102d4d22bb5d132c1fb4",
+          "figma": "Gm_Play-card",
+          "nodeId": "2040:6417",
+          "export": "PlayCard"
+        },
+        {
+          "key": "68e40c78d74b51fc8361ff0c448422a47fd5eb5a",
+          "figma": "_gm_pipe",
+          "nodeId": "2065:25867",
+          "export": "Pipe"
+        },
+        {
+          "key": "cb4a165e935c6d928c95b6244b2348dbbfb7369b",
+          "figma": "gm_Progress-bar",
+          "nodeId": "2012:1984",
+          "export": "ProgressBar"
+        },
+        {
+          "key": "8eda078bfd5bd36182b28aebd478cce6d4ecb1e5",
+          "figma": "_gm_progress-bar-base",
+          "nodeId": "2012:1953",
+          "export": "ProgressBar",
+          "note": "internal segment of ProgressBar"
+        }
+      ]
+    },
+    "dostt": { "brandVersion": "1.0.0-next.2", "components": [] },
+    "eaze": { "brandVersion": "1.0.0-next.1", "components": [] },
+    "bhakti": { "brandVersion": "1.0.0-next.1", "components": [] }
   }
 }

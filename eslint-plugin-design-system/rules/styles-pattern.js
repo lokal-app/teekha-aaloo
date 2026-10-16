@@ -55,13 +55,15 @@ module.exports = {
     type: 'problem',
     docs: {
       description:
-        'StyleSheet.create lives only inside a createStyles(theme[, params]) factory — in-file tail for components, styles.ts for screens (§A7)',
+        'StyleSheet.create lives only inside a module-scoped createStyles(tokens[, params]) factory — in-file tail for components, styles.ts for screens (§A7.3)',
     },
     schema: [],
     messages: {
       notInFactory:
-        'StyleSheet.create must be returned directly by `const createStyles = (theme: Theme[, params]) => StyleSheet.create({…})`.',
-      firstParam: "createStyles' first parameter must be `theme`.",
+        'StyleSheet.create must be returned directly by a module-scoped `const createStyles = (tokens: Tokens[, params]) => StyleSheet.create({…})`.',
+      firstParam: "createStyles' first parameter must be `tokens` (type Tokens from @/theme).",
+      notModuleScope:
+        'createStyles must be declared at module scope (useStyles memoizes on its identity).',
       notLast: 'createStyles must be the LAST declaration in a component file.',
       screenStylesFile:
         "Screen styles belong in the screen folder's styles.ts (export createStyles only), not in {{file}}.",
@@ -85,8 +87,21 @@ module.exports = {
           return;
         }
         const first = fn.params[0];
-        if (!first || first.type !== 'Identifier' || !/^_?theme$/.test(first.name)) {
+        if (!first || first.type !== 'Identifier' || !/^_?tokens$/.test(first.name)) {
           context.report({ node: first ?? fn, messageId: 'firstParam' });
+        }
+        const stmt0 = topLevelStatement(fn);
+        const declaredAtTop =
+          stmt0 === fn ||
+          (stmt0.type === 'VariableDeclaration' && stmt0.declarations.some((d) => d.init === fn)) ||
+          (stmt0.type === 'ExportNamedDeclaration' &&
+            stmt0.declaration &&
+            (stmt0.declaration === fn ||
+              (stmt0.declaration.type === 'VariableDeclaration' &&
+                stmt0.declaration.declarations.some((d) => d.init === fn))));
+        if (!declaredAtTop) {
+          context.report({ node: fn, messageId: 'notModuleScope' });
+          return;
         }
         if (inScreenFolder && !isScreenStylesFile) {
           context.report({ node, messageId: 'screenStylesFile', data: { file: base } });

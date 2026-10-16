@@ -1,35 +1,38 @@
+import { type KagazTokens, useTokens } from '@lokal-app/kagaz-components';
 import { useMemo, useState } from 'react';
 
-import { useTheme } from './ThemeProvider';
-import type { Theme } from './types';
-
-type StyleParams = Record<string, string | number | boolean | null | undefined>;
-
-function shallowEqual(a: StyleParams | undefined, b: StyleParams | undefined) {
-  if (a === b) return true;
-  if (!a || !b) return false;
-  const keysA = Object.keys(a);
-  if (keysA.length !== Object.keys(b).length) return false;
-  return keysA.every((key) => Object.is(a[key], b[key]));
-}
+type StyleParams = Record<string, string | number | boolean | undefined>;
 
 /**
- * The memoized createStyles consumer (§A7). Re-runs the factory only when the theme changes
- * or `params` changes by shallow equality — pass a small flat object of primitives.
+ * The memoized createStyles consumer. Re-runs the factory only when the tokens (brand/skin/mode)
+ * change or `params` changes by shallow equality. `factory` must be module-scoped (stable).
  */
-export function useStyles<T>(factory: (theme: Theme) => T): T;
-export function useStyles<T, P extends StyleParams>(
-  factory: (theme: Theme, params: P) => T,
+export function useStyles<S>(factory: (tokens: KagazTokens) => S): S;
+export function useStyles<S, P extends StyleParams>(
+  factory: (tokens: KagazTokens, params: P) => S,
   params: P,
-): T;
-export function useStyles<T, P extends StyleParams>(
-  factory: (theme: Theme, params?: P) => T,
+): S;
+export function useStyles<S, P extends StyleParams>(
+  factory: (tokens: KagazTokens, params?: P) => S,
   params?: P,
-): T {
-  const theme = useTheme();
-  const [stableParams, setStableParams] = useState(params);
-  if (!shallowEqual(stableParams, params)) {
-    setStableParams(params);
+): S {
+  const tokens = useTokens();
+  const stableParams = useShallowStable(params);
+  return useMemo(() => factory(tokens, stableParams), [factory, tokens, stableParams]);
+}
+
+function useShallowStable<P extends StyleParams | undefined>(value: P): P {
+  const [stable, setStable] = useState(value);
+  if (!shallowEqual(stable, value)) {
+    setStable(value);
+    return value;
   }
-  return useMemo(() => factory(theme, stableParams), [factory, theme, stableParams]);
+  return stable;
+}
+
+function shallowEqual(a: StyleParams | undefined, b: StyleParams | undefined): boolean {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  const keys = Object.keys(a);
+  return keys.length === Object.keys(b).length && keys.every((k) => a[k] === b[k]);
 }

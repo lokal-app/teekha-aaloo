@@ -10,15 +10,8 @@ function relativeFile(context) {
   return toPosix(path.relative(context.cwd ?? process.cwd(), context.filename));
 }
 
-function isInTheme(context) {
-  return relativeFile(context).startsWith('src/theme/');
-}
-
-function isInSrc(context) {
-  return relativeFile(context).startsWith('src/');
-}
-
 const fileCache = new Map();
+/** Reads a project file (cached by mtime); null when it doesn't exist. */
 function readProjectFile(context, file) {
   const abs = path.resolve(context.cwd ?? process.cwd(), file);
   let stat;
@@ -34,45 +27,16 @@ function readProjectFile(context, file) {
   return content;
 }
 
-/** Extracts `name: '#hex'` pairs from palette.ts. */
-function readPalette(context, file) {
-  const src = readProjectFile(context, file);
-  if (!src) return [];
-  const entries = [];
-  const re = /([A-Za-z_$][\w$]*)\s*:\s*['"](#[0-9a-fA-F]{3,8})['"]/g;
-  let m;
-  while ((m = re.exec(src))) entries.push({ name: m[1], hex: m[2] });
-  return entries;
-}
-
-/** Extracts the numeric values of the spacing scale from spacing.ts. */
-function readSpacingScale(context, file) {
-  const src = readProjectFile(context, file);
-  if (!src) return null;
-  const values = new Set();
-  const re = /[A-Za-z_$][\w$]*\s*:\s*(-?\d+(?:\.\d+)?)/g;
-  let m;
-  while ((m = re.exec(src))) values.add(Number(m[1]));
-  return values;
-}
-
-function hexToRgb(hex) {
-  let h = hex.replace('#', '');
-  if (h.length === 3 || h.length === 4) h = [...h].map((c) => c + c).join('');
-  const n = parseInt(h.slice(0, 6), 16);
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-}
-
-function nearestPaletteToken(hex, palette) {
-  if (!palette.length || !/^#[0-9a-f]{3,8}$/i.test(hex)) return null;
-  const [r, g, b] = hexToRgb(hex);
-  let best = null;
-  for (const entry of palette) {
-    const [r2, g2, b2] = hexToRgb(entry.hex);
-    const d = (r - r2) ** 2 + (g - g2) ** 2 + (b - b2) ** 2;
-    if (!best || d < best.d) best = { ...entry, d };
-  }
-  return best;
+/** Every Kagaz export name the app can see (scripts/kagaz-exports.mjs output). */
+function kagazExportNames(context) {
+  const raw = readProjectFile(context, 'eslint-plugin-design-system/kagaz-exports.json');
+  if (!raw) return new Set();
+  const data = JSON.parse(raw);
+  return new Set([
+    ...(data.shared ?? []),
+    ...Object.values(data.brandSubpaths ?? {}).flat(),
+    ...(data.navigation ?? []),
+  ]);
 }
 
 function propertyName(node) {
@@ -82,27 +46,23 @@ function propertyName(node) {
   return null;
 }
 
-function numericValue(node) {
-  if (node.type === 'Literal' && typeof node.value === 'number') return node.value;
-  if (
-    node.type === 'UnaryExpression' &&
-    node.operator === '-' &&
-    node.argument.type === 'Literal' &&
-    typeof node.argument.value === 'number'
-  ) {
-    return -node.argument.value;
+/** Local names bound by `import { A, B as C } from '@/components/ui'` in this file. */
+function gatewayImports(program) {
+  const names = new Map(); // local → imported
+  for (const stmt of program.body) {
+    if (stmt.type !== 'ImportDeclaration' || stmt.source.value !== '@/components/ui') continue;
+    for (const spec of stmt.specifiers) {
+      if (spec.type === 'ImportSpecifier') names.set(spec.local.name, spec.imported.name);
+    }
   }
-  return null;
+  return names;
 }
 
 module.exports = {
-  relativeFile,
-  isInTheme,
-  isInSrc,
-  readPalette,
-  readSpacingScale,
-  nearestPaletteToken,
-  propertyName,
-  numericValue,
   toPosix,
+  relativeFile,
+  readProjectFile,
+  kagazExportNames,
+  propertyName,
+  gatewayImports,
 };

@@ -1,31 +1,21 @@
-const noRawColors = require('./rules/no-raw-colors');
-const spacingScaleOnly = require('./rules/spacing-scale-only');
-const typographyComponentOnly = require('./rules/typography-component-only');
-const stylesPattern = require('./rules/styles-pattern');
-const tokensOnly = require('./rules/tokens-only');
-const noTokensOutsideTheme = require('./rules/no-tokens-outside-theme');
-const noLayerRootBarrels = require('./rules/no-layer-root-barrels');
-
-const plugin = {
-  meta: { name: 'eslint-plugin-design-system', version: '1.0.0' },
-  rules: {
-    'no-raw-colors': noRawColors,
-    'spacing-scale-only': spacingScaleOnly,
-    'typography-component-only': typographyComponentOnly,
-    'styles-pattern': stylesPattern,
-    'tokens-only': tokensOnly,
-    'no-tokens-outside-theme': noTokensOutsideTheme,
-    'no-layer-root-barrels': noLayerRootBarrels,
-  },
+const rules = {
+  'no-raw-style-values': require('./rules/no-raw-style-values'),
+  'no-raw-motion': require('./rules/no-raw-motion'),
+  'styles-pattern': require('./rules/styles-pattern'),
+  'kagaz-style-layout-only': require('./rules/kagaz-style-layout-only'),
+  'no-shadowed-kagaz-components': require('./rules/no-shadowed-kagaz-components'),
+  'kagaz-i18n-props': require('./rules/kagaz-i18n-props'),
+  'locked-folders': require('./rules/locked-folders'),
+  'no-layer-root-barrels': require('./rules/no-layer-root-barrels'),
+  'kagaz-gap-ledger': require('./rules/kagaz-gap-ledger'),
+  'kagaz-gateway-pass-through': require('./rules/kagaz-gateway-pass-through'),
 };
 
+const plugin = { meta: { name: 'eslint-plugin-design-system', version: '2.0.0' }, rules };
 plugin.configs = {
   recommended: {
     plugins: { 'design-system': plugin },
-    rules: Object.fromEntries(
-      Object.keys(plugin.rules).map((name) => [`design-system/${name}`, 'error']),
-    ),
+    rules: Object.fromEntries(Object.keys(rules).map((name) => [`design-system/${name}`, 'error'])),
   },
 };
-
 module.exports = plugin;
