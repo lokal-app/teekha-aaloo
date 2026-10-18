@@ -134,7 +134,7 @@ providers/ ───────────►  anything (it is the composition
 **Kagaz import zones (ESLint-enforced, §A12):**
 - `@lokal-app/kagaz-tokens` and the brand package's **root entry** `@lokal-app/kagaz-brand-<brand>` → **only `src/theme/**`** (and `app.config.ts` for the font plugin).
 - The brand package's **subpaths** `@lokal-app/kagaz-brand-<brand>/components` (brand-only components), `/icons` (brand icons) and `/geometry` (layout numbers) → **only `src/components/ui/**`**. Only the app's own brand is installed, so another brand's subpath cannot resolve; `kagaz:check` also rejects it in source.
-- `@lokal-app/kagaz-components` and its `/primitives` entry (components, primitives, icons, `useReduceMotion`, `useAnnounce`…) → **only `src/components/ui/**`** (component gateway) and `src/theme/**` (theme binding: `useTokens`, `useTheme`, `ThemeProvider`, `createTheme`, `defineThemeOverrides`, `KagazTokens`).
+- `@lokal-app/kagaz-components` and its `/primitives` entry (components, primitives, icons, `renderIconSlot`…) → **only `src/components/ui/**`** (component gateway) and `src/theme/**` (theme binding: `useTokens`, `useTheme`, `ThemeProvider`, `createTheme`, `defineThemeOverrides`, `KagazTokens`).
 - `@lokal-app/kagaz-components/navigation` → `src/components/ui/navigation.ts` (`useTabBarOptions`, `tabItem`) and `src/theme/navigationTheme.ts` (`adaptNavigationTheme`) only.
 - **Everyone else imports Kagaz components from `@/components/ui`** (screens, components/*, shell, icons, features, navigation) **and theme from `@/theme`** (`useTokens`, `useTheme`, `useStyles`, `Tokens`, and `ThemeProvider` — the latter only in `providers/index.tsx`); `createTheme`/`defineThemeOverrides` only in `theme/`.
 
@@ -676,7 +676,7 @@ const createStyles = (tokens: Tokens) =>
          root: { paddingTop: top + tokens.spacing[16], borderColor: tint },
        });
      ```
-  2. **Reanimated** — `useAnimatedStyle()` results are legal as a style-array element: `style={[styles.card, animatedStyle]}`. Durations and easings come from `tokens.motion.*` (`Easing.bezier(...tokens.motion.easing.standard)`), captured outside the worklet; respect `useReduceMotion()` from Kagaz.
+  2. **Reanimated** — `useAnimatedStyle()` results are legal as a style-array element: `style={[styles.card, animatedStyle]}`. Durations and easings come from `tokens.motion.*` (`Easing.bezier(...tokens.motion.easing.standard)`), captured outside the worklet; respect the OS reduce-motion setting (e.g. Reanimated's `useReducedMotion()`).
   Nothing else is legal: no object literals in JSX, no `StyleSheet.flatten` hand-merging in the component body, no style objects built in render.
 - **Text renders only via Kagaz `<Text variant color>`.** RN `Text` is banned in `src/` (Kagaz components render their own text). Never re-create a text style from `tokens.typography.*` on an RN `Text`.
 - **Touchables:** Kagaz buttons (`Button`, `IconButton`, `TimerButton`, `Chip`, …) first; for a custom pressable surface, Kagaz `Pressable` (role `button` + 44pt/48dp hit area + `aria-disabled` built in). RN `Pressable`/`Touchable*` are banned in `src/`.
@@ -768,7 +768,6 @@ Authoritative props: the JSDoc in `node_modules/@lokal-app/kagaz-components/src/
 | Primitives: `Text`, `Box`, `HStack`, `VStack`, `Pressable`, `Spinner` | — | `Text` `variant` (short Figma name: `"label1P"`, `"h1"`) + `color`; `padding*`/`gap`/`background`/`borderColor`/`borderWidth`/`radius`/`align`/`justify`/`wrap` (token names) |
 | Icons: `PlusIcon`, `XIcon`, `CaretDownIcon`, `CheckIcon`, `CircleNotchIcon`, `MagnifyingGlassIcon`, `SparkleFillIcon`, `HouseIcon`/`HouseFillIcon`, `ChatTextIcon`/`ChatTextFillIcon`, `ClockCounterClockwiseIcon`/`…FillIcon`, `ClockFillIcon`, `UserIcon`/`UserFillIcon`, `PhoneFillIcon`, `VideoCameraFillIcon`, `CurrencyInrIcon`, `FlagUsIcon`, `InfoFillIcon`, `CheckCircleFillIcon`, `WarningCircleIcon`, `WarningCircleFillIcon`, `WarningFillIcon` | Phosphor (Figma) | `color`, `size`; passed to slots as components (`icon={PlusIcon}`) |
 | Theme: `ThemeProvider`, `useTokens`, `useTheme`, `createTheme`, `defineThemeOverrides`, `fontStyleFrom` | — | theme binding lives in `theme/`; `ThemeProvider` reaches `providers/` via `@/theme`; hooks via `@/theme` |
-| Hooks/utils: `useReduceMotion`, `useAnnounce`, `useStatusAnnouncement`, `STATUS_ICONS` | — | animations respect reduce-motion; iOS announcements; status icon per intent |
 | `/navigation`: `adaptNavigationTheme`, `useTabBarOptions`, `tabItem`, `KagazTabButton` | Bottom Nav | `useTabBarOptions`/`tabItem` via `@/components/ui` (`ui/navigation.ts`); `adaptNavigationTheme` only in `theme/navigationTheme.ts` |
 
 **Brand-only components — `@lokal-app/kagaz-brand-<brand>/components`** (Kagaz ADR-0007). Components that exist for one brand live in that brand's package, built to the same rules as the shared library (same lint, token-police, stories, specs), reading tokens with `useTokens()` (so they need the app's `ThemeProvider` like any Kagaz component). An app sees **only its own brand's**; the subpath exists only for brands that ship components.
@@ -817,7 +816,7 @@ src/components/ui/
 ├── kagaz.ts          shared Kagaz — explicit named re-exports, values + their types:
 │                       export { Button, type ButtonProps, TextInput, type TextInputProps,
 │                         Text, Box, HStack, VStack, Pressable, Spinner, PlusIcon, …,
-│                         useReduceMotion, useAnnounce, type IconSlot, type IconProps }
+│                         renderIconSlot, type IconSlot, type IconProps }
 │                         from '@lokal-app/kagaz-components';
 ├── brand.ts          the app's brand — explicit named re-exports from
 │                       '@lokal-app/kagaz-brand-<brand>/components' | '/icons' | '/geometry'
@@ -1018,7 +1017,7 @@ tokenPolice
 
 ## A13. `App.tsx` bootstrap order (canonical)
 
-**Module-load (before React renders):** first-run check → wipe SecureStore on fresh install (iOS Keychain persistence) → hydrate auth + settings stores from MMKV (sync) → `configureApiAuth({ onSessionExpired: () => useAuthStore.getState().signOut() })` → `setupReactQueryNative()` → build themes (importing `@/theme` runs `createTheme` in `registry.ts` — a bad brand or override throws here, loudly) → register OS-level notification handlers (Android channels + iOS VoIP) → init core analytics adapter.
+**Module-load (before React renders):** first-run check → wipe SecureStore on fresh install (iOS Keychain persistence) → hydrate auth + settings stores from MMKV (sync) → **initialize i18n** with the persisted language, called explicitly from `App.tsx` (a `lib/i18n` module that nothing imports never runs, and every `t()` renders its raw key) → `configureApiAuth({ onSessionExpired: () => useAuthStore.getState().signOut() })` → `setupReactQueryNative()` → build themes (importing `@/theme` runs `createTheme` in `registry.ts` — a bad brand or override throws here, loudly) → register OS-level notification handlers (Android channels + iOS VoIP) → init core analytics adapter.
 **Component-mount (inside `App`):** init crash adapter → init push adapter → load remote config (may switch `settings.themeName` to a remote skin) → conditionally init observability (remote-config kill-switch) → request tracking permission → hide bootsplash → render `<Providers><RootNavigator/></Providers>`.
 **There is no font-loading step:** brand fonts are embedded at build time by the brand's config plugin, so text is in the brand font on the first frame.
 
