@@ -12,7 +12,7 @@ disable-model-invocation: true
    `github:lokal-app/kagaz#<sha>&path:/packages/token-police`. Unavailable → tell the developer
    and stop; the default tier stays active (nothing breaks).
 3. Ask the developer to install it (guard-bash blocks agent installs):
-   `! pnpm add -D -E <source>`. Wait for confirmation.
+   `! GITHUB_PACKAGES_TOKEN=$(gh auth token) pnpm add -D -E <source>`. Wait for confirmation.
 4. Set `USE_TOKEN_POLICE = true` in eslint.config.mjs (that turns design-system/no-raw-style-values
    off). Change nothing else.
 5. Run pnpm lint; fix every token-police finding with the token it names — never disable a rule.
