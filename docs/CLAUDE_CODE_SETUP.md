@@ -190,7 +190,7 @@ paths:
 - Conditional styles: arrays — `[styles.root, isActive && styles.active]`.
 - Runtime values (insets, measured layout, API colours): `createStyles(tokens, params)` +
   `useStyles(createStyles, params)`. Animations: `[styles.x, animatedStyle]` with
-  tokens.motion.duration/easing and useReduceMotion(). No other dynamic-style path exists.
+  tokens.motion.duration/easing, respecting reduce-motion. No other dynamic-style path exists.
 - Every colour/spacing/radius/border/font/opacity/shadow value from `tokens`. No literals.
   Content dimensions from Figma → constants.ts with the Figma node cited.
 - Text only via Kagaz <Text>; touchables only Kagaz buttons / Kagaz Pressable; icons only
