@@ -20,8 +20,8 @@ allowed-tools: "Read Write Edit Grep Glob Bash Agent"
    already installed — skip the branch requirement and step 2, run steps 3–7 against the
    installed versions.
 2. Ask the user to install (guard-bash blocks agent installs):
-   `! pnpm add -E @lokal-app/kagaz-components@<v> @lokal-app/kagaz-brand-<brand>@<bv>` and
-   ONLY if the app opted into token-police: `! pnpm add -D -E @lokal-app/kagaz-token-police@<v>`
+   `! GITHUB_PACKAGES_TOKEN=$(gh auth token) pnpm add -E @lokal-app/kagaz-components@<v> @lokal-app/kagaz-brand-<brand>@<bv>` and
+   ONLY if the app opted into token-police: `! GITHUB_PACKAGES_TOKEN=$(gh auth token) pnpm add -D -E @lokal-app/kagaz-token-police@<v>`
    (or its git pin, §A12) at the same Kagaz release
    (exact pins; kagaz-tokens follows components; the brand version must peer-accept them).
    Wait for confirmation.

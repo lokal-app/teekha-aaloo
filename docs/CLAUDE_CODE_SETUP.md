@@ -1007,8 +1007,8 @@ allowed-tools: "Read Write Edit Grep Glob Bash Agent"
    already installed — skip the branch requirement and step 2, run steps 3–7 against the
    installed versions.
 2. Ask the user to install (guard-bash blocks agent installs):
-   `! pnpm add -E @lokal-app/kagaz-components@<v> @lokal-app/kagaz-brand-<brand>@<bv>` and
-   ONLY if the app opted into token-police: `! pnpm add -D -E @lokal-app/kagaz-token-police@<v>`
+   `! GITHUB_PACKAGES_TOKEN=$(gh auth token) pnpm add -E @lokal-app/kagaz-components@<v> @lokal-app/kagaz-brand-<brand>@<bv>` and
+   ONLY if the app opted into token-police: `! GITHUB_PACKAGES_TOKEN=$(gh auth token) pnpm add -D -E @lokal-app/kagaz-token-police@<v>`
    (or its git pin, §A12) at the same Kagaz release
    (exact pins; kagaz-tokens follows components; the brand version must peer-accept them).
    Wait for confirmation.
@@ -1049,7 +1049,7 @@ disable-model-invocation: true
    `github:lokal-app/kagaz#<sha>&path:/packages/token-police`. Unavailable → tell the developer
    and stop; the default tier stays active (nothing breaks).
 3. Ask the developer to install it (guard-bash blocks agent installs):
-   `! pnpm add -D -E <source>`. Wait for confirmation.
+   `! GITHUB_PACKAGES_TOKEN=$(gh auth token) pnpm add -D -E <source>`. Wait for confirmation.
 4. Set `USE_TOKEN_POLICE = true` in eslint.config.mjs (that turns design-system/no-raw-style-values
    off). Change nothing else.
 5. Run pnpm lint; fix every token-police finding with the token it names — never disable a rule.

@@ -12,14 +12,13 @@ follows the same shape — only the brand and the product code change. (This ref
 
 ## Quickstart
 
-Kagaz is installed from GitHub Packages, so installs need a GitHub token with `read:packages`
-in your shell (not in `.env`):
+Kagaz is installed from GitHub Packages. One-time setup — no token to copy, paste or store:
 
 ```bash
-gh auth refresh -h github.com -s read:packages   # once
-export GITHUB_PACKAGES_TOKEN=$(gh auth token)     # every shell that installs (or add to ~/.zshrc)
+gh auth refresh -h github.com -s read:packages                                  # once (authorize SSO if asked)
+echo 'export GITHUB_PACKAGES_TOKEN=$(gh auth token 2>/dev/null)' >> ~/.zshenv   # once — a command, not a secret
 
-pnpm install                 # pnpm only (enforced)
+pnpm install                 # pnpm only (enforced); open a new terminal after the step above
 pnpm prebuild:development    # generate android/ + ios/ (gitignored, CNG) — embeds the brand's fonts
 pnpm android                 # or: pnpm ios — builds + runs the dev client
 pnpm start                   # metro for an installed dev client
